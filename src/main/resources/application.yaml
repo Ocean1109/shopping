@@ -1,0 +1,6 @@
+spring:
+  datasource:
+    username: jack
+    password: Ocean200
+    url: jdbc:postgresql://152.136.110.205:8081/shopping
+    driver-class-name: org.postgresql.Driver
