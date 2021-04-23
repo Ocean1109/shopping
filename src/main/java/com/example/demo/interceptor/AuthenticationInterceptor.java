@@ -22,8 +22,6 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
     private UserMapper userMapper;
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object object) throws Exception {
-
-        System.out.println(request.getHeader("token"));
         // 如果不是映射到方法直接通过
         if(!(object instanceof HandlerMethod)){
             return true;
@@ -37,47 +35,40 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
                 return true;
             }
         }
-        /** 检查有没有需要用户权限的注解 */
+        //检查有没有需要用户权限的注解
         if (method.isAnnotationPresent(UserLoginToken.class)) {
-            /** Token 验证 */
-            String token = request.getHeader(tokenService.getHeader());
-            if (StringUtils.isEmpty(token)) {
-                token = request.getParameter(tokenService.getHeader());
-            }
-            if (StringUtils.isEmpty(token)) {
-                response.sendError(401, "token信息不能为空");
-                return false;
-            }
-            String userid = tokenService.getUseridFromToken(token);
-            String compareToken = tokenService.getTokenMap().get(userid);
-            if (compareToken != null && !compareToken.equals(token)) {
-                response.sendError(400, "token已经失效,请重新登录");
-                return false;
-            }
-
             UserLoginToken userLoginToken = method.getAnnotation(UserLoginToken.class);
-            if (userLoginToken.required()) {
+            if(userLoginToken.required()){
+                //先从请求报文的头部获取token
+                String token = request.getHeader(tokenService.getHeader());
+                if (token == null) {
+                    //再从请求报文的参数获取token
+                    token = request.getParameter(tokenService.getHeader());
+                }
+                if (token == null) {
+                    throw new RuntimeException("无token，请重新登录");
+                }
+                // 获取 token 中的 user id
+                String userid = tokenService.getUseridFromToken(token);
+                String compareToken = tokenService.getTokenMap().get(userid);
+                if (compareToken != null && !compareToken.equals(token)) {
+                    response.sendError(400, "token已经失效,请重新登录");
+                    return false;
+                }
                 Claims claims = null;
                 try {
                     claims = tokenService.getTokenClaim(token);
                     if (claims == null || tokenService.isTokenExpired(claims.getExpiration())) {
-                        response.sendError(400, "token已经失效,请重新登录");
-                        return false;
+                        throw new RuntimeException("token已经失效,请重新登录");
                     }
                 } catch (Exception e) {
-                    response.sendError(400, "token已经失效,请重新登录");
-                    return false;
+                    throw new RuntimeException("token已经失效,请重新登录");
                 }
-                /** 设置 identityId 用户身份ID */
-                request.setAttribute("identityId", claims.getSubject());
+//                /** 设置 identityId 用户身份ID */
+//                request.setAttribute("identityId", claims.getSubject());
                 return true;
             }
-            if (compareToken == null) {
-                // 由于服务器war重新上传导致临时数据丢失,需要重新存储
-                tokenService.getTokenMap().put(userid, token);
-            }
         }
-
         return true;
     }
 

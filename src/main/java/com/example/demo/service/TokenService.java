@@ -3,6 +3,7 @@ package com.example.demo.service;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import lombok.Data;
 import org.apache.juli.logging.Log;
 import org.apache.juli.logging.LogFactory;
 import org.springframework.stereotype.Service;
@@ -12,16 +13,12 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-
+@Data
 @Service("TokenService")
 public class TokenService {
-    private static final Log log = LogFactory.getLog(TokenService.class);
-
     private String secret = "123456";
-
-    // 外部http请求中 header中 token的 键值
+    // http请求中header中token的key
     private String header = "token";
-
     private static Map<String, String> tokenMap = new HashMap<>();
 
     /**
@@ -32,7 +29,6 @@ public class TokenService {
      */
     public String createToken(String subject) {
         Date nowDate = new Date();
-
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(nowDate);
         calendar.add(Calendar.DAY_OF_MONTH, 1);
@@ -52,11 +48,15 @@ public class TokenService {
 
     public String createRefreshToken(String subject) {
         Date nowDate = new Date();
-
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(nowDate);
+        calendar.add(Calendar.DAY_OF_MONTH, 1);
+        Date expireDate = calendar.getTime();
         return Jwts.builder()
                 .setHeaderParam("typ", "JWT")
                 .setSubject(subject)
                 .setIssuedAt(nowDate)
+                .setExpiration(expireDate)
                 .signWith(SignatureAlgorithm.HS512, secret)
                 .compact();
     }
@@ -109,23 +109,6 @@ public class TokenService {
         return getTokenClaim(token).getIssuedAt();
     }
 
-    // --------------------- getter & setter ---------------------
-
-    public String getSecret() {
-        return secret;
-    }
-
-    public void setSecret(String secret) {
-        this.secret = secret;
-    }
-
-    public String getHeader() {
-        return header;
-    }
-
-    public void setHeader(String header) {
-        this.header = header;
-    }
 
     public Map<String, String> getTokenMap() {
         return tokenMap;

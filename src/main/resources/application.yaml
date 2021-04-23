@@ -1,6 +1,10 @@
 spring:
   datasource:
-    username: jack
-    password: Ocean200
+    username: curry
+    password: Ocean1109
     url: jdbc:postgresql://152.136.110.205:8081/shopping
     driver-class-name: org.postgresql.Driver
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case=false:
