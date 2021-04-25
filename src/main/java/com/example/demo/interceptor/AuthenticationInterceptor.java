@@ -1,11 +1,10 @@
 package com.example.demo.interceptor;
 import com.example.demo.annotation.PassToken;
 import com.example.demo.annotation.UserLoginToken;
-import com.example.demo.mapper.UserMapper;
+import com.example.demo.mapper.ShoppingUserMapper;
 import com.example.demo.service.TokenService;
 import io.jsonwebtoken.Claims;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.StringUtils;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
@@ -19,7 +18,7 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
     @Autowired
     private TokenService tokenService;
     @Autowired
-    private UserMapper userMapper;
+    private ShoppingUserMapper shoppingUserMapper;
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object object) throws Exception {
         // 如果不是映射到方法直接通过

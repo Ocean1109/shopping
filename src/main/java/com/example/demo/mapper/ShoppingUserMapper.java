@@ -7,5 +7,5 @@ import org.springframework.stereotype.Repository;
 
 @Mapper
 @Repository
-public interface UserMapper extends BaseMapper<ShoppingUser> {
+public interface ShoppingUserMapper extends BaseMapper<ShoppingUser> {
 }
