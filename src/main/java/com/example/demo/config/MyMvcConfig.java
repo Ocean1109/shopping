@@ -15,13 +15,13 @@ public class MyMvcConfig implements WebMvcConfigurer {
     //视图跳转
     @Override
     public void addViewControllers(ViewControllerRegistry registry){
-
+        registry.addViewController("/login").setViewName("login");
     }
     //解决跨域问题
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins("*")
+                .allowedOriginPatterns("*")
                 .allowedMethods("GET", "HEAD", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowCredentials(true)
                 .maxAge(3600)

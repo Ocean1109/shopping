@@ -25,4 +25,12 @@ public class ShoppingUser {
         this.age = age;
         this.gender = gender;
     }
+
+    public ShoppingUser(String tel, String password, String userName, int age, int gender) {
+        this.tel = tel;
+        this.password = password;
+        this.userName = userName;
+        this.age = age;
+        this.gender = gender;
+    }
 }
