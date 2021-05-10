@@ -54,10 +54,10 @@ public class LoginController {
         QueryWrapper<ShoppingUser> shoppingUserQueryWrapper= Wrappers.query();
         shoppingUserQueryWrapper.eq("tel",user.getTel());
         ShoppingUser queryUser=shoppingUserMapper.selectOne(shoppingUserQueryWrapper);
-        if(queryUser!=null){
+        if(queryUser!=null){//手机号被注册
             result=new LoginVo(1,"该手机号已被注册");
             return result;
-        }else{
+        }else{//成功注册
             ShoppingUser newUser =new ShoppingUser(user.getTel(),user.getPassword(),user.getUserName(),user.getAge(),user.getGender());
             shoppingUserMapper.insert(newUser);
             //添加token
