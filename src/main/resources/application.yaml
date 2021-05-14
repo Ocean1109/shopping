@@ -7,6 +7,8 @@ spring:
 
 server:
   port: 8181
+
+
 # 阿里云存储参数配置
 aliyun:
   oss:
@@ -15,6 +17,4 @@ aliyun:
     accessKeySecret: MWA3UiU9i16kMj9bJWCOyaGOg8E5ik
     bucketName: ocean1109
 
-mybatis-plus:
-  configuration:
-    map-underscore-to-camel-case=false:
+

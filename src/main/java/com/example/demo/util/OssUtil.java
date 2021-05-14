@@ -105,6 +105,11 @@ public class OssUtil {
         return imgUrls[0].trim();
     }
 
+    //获取带参数的完整路径
+    private String getLongUrl(String url) {
+        return url.trim();
+    }
+
     // 获得url链接
     private String getUrl(String key) {
         // 设置URL过期时间为20年 3600l* 1000*24*365*20
@@ -113,7 +118,7 @@ public class OssUtil {
         OSSClient ossClient = new OSSClient(endpoint, accessKeyId, accessKeySecret);
         URL url = ossClient.generatePresignedUrl(bucketName, key, expiration);
         if (url != null) {
-            return getShortUrl(url.toString());
+            return getLongUrl(url.toString());
         }
         return null;
     }

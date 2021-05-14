@@ -7,5 +7,5 @@ import org.springframework.stereotype.Repository;
 
 @Mapper
 @Repository
-public interface ProduceTypeMapper extends BaseMapper<ProductType> {
+public interface ProductTypeMapper extends BaseMapper<ProductType> {
 }

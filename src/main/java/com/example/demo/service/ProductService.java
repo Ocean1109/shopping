@@ -1,8 +1,12 @@
 package com.example.demo.service;
 
 import com.example.demo.entity.Product;
+import com.example.demo.vo.ProductVo;
+
+import java.util.List;
 
 public interface ProductService {
+    List<ProductVo> showAllProduct();
     /**
      * @des 展示单个商品的信息
      * @param id
@@ -12,5 +16,5 @@ public interface ProductService {
      * @des 发布一个商品
      * @param product
      * @return 是否成功发布*/
-    Boolean releaseProduct(Product product);
+    public Boolean releaseProduct(Product product);
 }

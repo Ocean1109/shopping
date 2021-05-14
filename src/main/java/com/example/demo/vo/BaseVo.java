@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class LoginVo {
+public class BaseVo {
     /**登录：
      * 0:成功
      * 1:电话号未注册

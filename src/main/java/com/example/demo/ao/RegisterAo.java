@@ -8,5 +8,5 @@ public class RegisterAo {
     private String password;
     private String userName;
     private int age;
-    private int gender;
+    private String gender;
 }

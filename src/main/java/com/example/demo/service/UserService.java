@@ -7,5 +7,5 @@ public interface UserService {
      * @des 展示用户信息
      * @param userId
      * @return 用户实体类*/
-    ShoppingUser showUser(String userId);
+    public ShoppingUser showUser(String userId);
 }

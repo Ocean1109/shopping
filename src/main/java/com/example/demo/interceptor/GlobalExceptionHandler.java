@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 
 @ControllerAdvice
-public class GloablExceptionHandler {
+public class GlobalExceptionHandler {
     @ResponseBody
     @ExceptionHandler(Exception.class)
     public Object handleException(Exception e) {
