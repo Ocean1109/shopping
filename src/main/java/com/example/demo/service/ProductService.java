@@ -1,7 +1,9 @@
 package com.example.demo.service;
 
+import com.example.demo.ao.ReleaseAo;
 import com.example.demo.entity.Product;
 import com.example.demo.vo.ProductVo;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -16,5 +18,5 @@ public interface ProductService {
      * @des 发布一个商品
      * @param product
      * @return 是否成功发布*/
-    public Boolean releaseProduct(Product product);
+    public Boolean releaseProduct(MultipartFile productImage, ReleaseAo releaseProduct);
 }

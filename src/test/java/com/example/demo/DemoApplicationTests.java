@@ -1,7 +1,10 @@
 package com.example.demo;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.example.demo.entity.ProductType;
 import com.example.demo.entity.ShoppingUser;
+import com.example.demo.mapper.ProductTypeMapper;
 import com.example.demo.mapper.ShoppingUserMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +13,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest
 class DemoApplicationTests {
 
+    @Autowired
+    ProductTypeMapper productTypeMapper;
     @Autowired
     ShoppingUserMapper shoppingUserMapper;
     @Test
@@ -37,6 +42,18 @@ class DemoApplicationTests {
     void select(){
         ShoppingUser user= shoppingUserMapper.selectById(0);
         System.out.println(user.getUserName());
+    }
+
+    @Test
+    void productTypeTest(){
+        QueryWrapper<ProductType> productTypeQueryWrapper=new QueryWrapper<>();
+        productTypeQueryWrapper.eq("type_name","生活用品");
+        ProductType productType=productTypeMapper.selectById(0);
+        if(productType!=null){//存在
+            System.out.println(productType.getId());
+        }else{
+            System.out.println("新建");
+        }
     }
 
 }

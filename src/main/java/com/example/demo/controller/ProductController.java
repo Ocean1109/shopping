@@ -4,8 +4,10 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.example.demo.ao.ReleaseAo;
 import com.example.demo.entity.Brand;
 import com.example.demo.entity.Product;
+import com.example.demo.entity.ProductRule;
 import com.example.demo.entity.ProductType;
 import com.example.demo.mapper.BrandMapper;
+import com.example.demo.mapper.ProductRuleMapper;
 import com.example.demo.mapper.ProductTypeMapper;
 import com.example.demo.service.ProductService;
 import com.example.demo.service.TokenService;
@@ -32,56 +34,24 @@ public class ProductController {
     @Autowired
     private ProductTypeMapper productTypeMapper;
     @Autowired
+    private ProductRuleMapper productRuleMapper;
+    @Autowired
     private TokenService tokenService;
     @Autowired
-    OssUtil ossUtil; //注入OssUtil
+    OssUtil ossUtil;
 
+    /**列出所有商品*/
     @GetMapping("/product")
     @ResponseBody
     public List<ProductVo> listAll(){
         return productService.showAllProduct();
     }
 
+    /**发布商品*/
     @PostMapping("/release")
     @ResponseBody
-    public void release(@RequestPart("productImage")MultipartFile productImage, @RequestPart("images") List<MultipartFile> images, @RequestPart("releaseProduct")ReleaseAo releaseProduct){
-        Product product=new Product();
-        product.setProductDesc(releaseProduct.getProductDesc());
-        product.setProductPrice(releaseProduct.getProductPrice());
-        int userId=Integer.parseInt(tokenService.getUseridFromToken(releaseProduct.getUser()));
-        product.setPublishUserId(userId);
-        product.setProductAddress(releaseProduct.getProductAddress());
-        //获取当前时间
-        String current = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format( new Date());
-        Timestamp time = Timestamp.valueOf(current);
-        product.setCreateTime(time);
-        product.setUpdateTime(time);
-        product.setNumbers(releaseProduct.getNumbers());
-        product.setProductRule(releaseProduct.getProductRule());
-        String url = ossUtil.uploadFile(productImage);
-        product.setProductImage(url);
-        //查看是否存在brand，存在则填入相应的id，不存在则新增一个brand,并且填入id
-        QueryWrapper<Brand> brandQueryWrapper=new QueryWrapper<>();
-        brandQueryWrapper.eq("brandName",releaseProduct.getBrand());
-        Brand productBrand=brandMapper.selectOne(brandQueryWrapper);
-        if(productBrand!=null){//存在
-            product.setBrandId(productBrand.getId());
-        }else{
-            Brand newBrand=new Brand(releaseProduct.getBrand());
-            brandMapper.insert(newBrand);
-            product.setBrandId(newBrand.getId());
-        }
-        //查看是否存在productType，存在则填入相应的id，不存在则新增一个type,并且填入id
-        QueryWrapper<ProductType> productTypeQueryWrapper=new QueryWrapper<>();
-        ProductType productType=productTypeMapper.selectOne(productTypeQueryWrapper);
-        if(productType!=null){//存在
-            product.setProductTypeId(productType.getId());
-        }else{
-            ProductType newProductType=new ProductType(releaseProduct.getProductType(),1,time,userId,time,userId);
-            productTypeMapper.insert(newProductType);
-            product.setProductTypeId(newProductType.getId());
-        }
-        
+    public Boolean release(@RequestPart("productImage")MultipartFile productImage, @RequestPart("releaseProduct")ReleaseAo releaseProduct){
+        return productService.releaseProduct(productImage,releaseProduct);
 
     }
 

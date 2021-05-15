@@ -24,6 +24,8 @@ public class LoginController {
     @Autowired
     private TokenService tokenService;
 
+
+    /**登录*/
     @PostMapping("/login")
     @ResponseBody
     public BaseVo login(@RequestBody LoginAo user){
@@ -49,6 +51,7 @@ public class LoginController {
         }
     }
 
+    /**注册*/
     @PostMapping("/register")
     @ResponseBody
     public BaseVo register(@RequestBody RegisterAo user){
