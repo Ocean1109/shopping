@@ -1,5 +1,6 @@
 package com.example.demo.util;
 
+import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSBuilder;
 import com.aliyun.oss.OSSClient;
 import com.aliyun.oss.OSSClientBuilder;
@@ -173,6 +174,22 @@ public class OssUtil {
             }
         }
         return ret;
+    }
+
+    public Boolean deleteFile(String objectName){
+        try {
+            // 创建OSSClient实例。
+            OSS ossClient = new OSSClientBuilder().build(endpoint, accessKeyId, accessKeySecret);
+            // 删除文件。如需删除文件夹，请将ObjectName设置为对应的文件夹名称。如果文件夹非空，则需要将文件夹下的所有object删除后才能删除该文件夹。
+            ossClient.deleteObject(bucketName, objectName);
+            // 关闭OSSClient。
+            ossClient.shutdown();
+            return true;
+        }
+        catch (Exception e){
+            return false;
+        }
+
     }
 
     private static String getcontentType(String FilenameExtension) {

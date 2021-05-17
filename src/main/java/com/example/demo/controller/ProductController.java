@@ -55,6 +55,13 @@ public class ProductController {
 
     }
 
+    /**删除商品*/
+    @PostMapping("/delete")
+    @ResponseBody
+    public void delete(@RequestParam("id")int id){
+
+
+    }
 
 
 }

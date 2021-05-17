@@ -74,8 +74,6 @@ public class ProductServiceImp implements ProductService {
         product.setUpdateTime(time);
         product.setNumbers(releaseProduct.getNumbers());
         product.setProductRule(releaseProduct.getProductRule());
-        String url = ossUtil.uploadFile(productImage);
-        product.setProductImage(url);
         //查看是否存在brand，存在则填入相应的id，不存在则新增一个brand,并且填入id
         QueryWrapper<Brand> brandQueryWrapper=new QueryWrapper<>();
         brandQueryWrapper.eq("brand_name",releaseProduct.getBrand());
@@ -109,8 +107,24 @@ public class ProductServiceImp implements ProductService {
             productRuleMapper.insert(newProductRule);
             product.setProductRuleId(newProductRule.getId());
         }
+        String url = ossUtil.uploadFile(productImage);
+        product.setProductImage(url);
         int result=productMapper.insert(product);
         if(result==1){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    @Override
+    public Boolean deleteProduct(int id) {
+        Product deleteProduct=productMapper.selectById(id);
+        String url=deleteProduct.getProductImage();
+        url=url.replaceFirst("(.*)//ocean1109.oss-cn-beijing.aliyuncs.com/"," ");
+        String[] split = url.split("\\?");
+        if(ossUtil.deleteFile(split[0])){
+            productMapper.deleteById(id);
             return true;
         }else{
             return false;
