@@ -2,6 +2,7 @@ package com.example.demo.service;
 
 import com.example.demo.ao.ReleaseAo;
 import com.example.demo.entity.Product;
+import com.example.demo.vo.BaseVo;
 import com.example.demo.vo.ProductVo;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -26,5 +27,5 @@ public interface ProductService {
      * @des 发布一个商品
      * @param id
      * @return 是否成功发布*/
-    Boolean deleteProduct(int id);
+    BaseVo deleteProduct(int id);
 }

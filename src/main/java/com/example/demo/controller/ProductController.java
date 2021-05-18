@@ -12,6 +12,7 @@ import com.example.demo.mapper.ProductTypeMapper;
 import com.example.demo.service.ProductService;
 import com.example.demo.service.TokenService;
 import com.example.demo.util.OssUtil;
+import com.example.demo.vo.BaseVo;
 import com.example.demo.vo.ProductVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -58,9 +59,8 @@ public class ProductController {
     /**删除商品*/
     @PostMapping("/delete")
     @ResponseBody
-    public void delete(@RequestParam("id")int id){
-
-
+    public BaseVo delete(@RequestParam("id")int id){
+        return productService.deleteProduct(id);
     }
 
 

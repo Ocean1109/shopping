@@ -13,7 +13,9 @@ import com.example.demo.mapper.ProductTypeMapper;
 import com.example.demo.service.ProductService;
 import com.example.demo.service.TokenService;
 import com.example.demo.util.OssUtil;
+import com.example.demo.vo.BaseVo;
 import com.example.demo.vo.ProductVo;
+import com.fasterxml.jackson.databind.ser.Serializers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -118,16 +120,29 @@ public class ProductServiceImp implements ProductService {
     }
 
     @Override
-    public Boolean deleteProduct(int id) {
-        Product deleteProduct=productMapper.selectById(id);
-        String url=deleteProduct.getProductImage();
-        url=url.replaceFirst("(.*)//ocean1109.oss-cn-beijing.aliyuncs.com/"," ");
-        String[] split = url.split("\\?");
-        if(ossUtil.deleteFile(split[0])){
-            productMapper.deleteById(id);
-            return true;
-        }else{
-            return false;
+    public BaseVo deleteProduct(int id) {
+        BaseVo baseVo=new BaseVo();
+        try{
+            Product deleteProduct=productMapper.selectById(id);
+            String url=deleteProduct.getProductImage();
+            url=url.replaceFirst("(.*)//ocean1109.oss-cn-beijing.aliyuncs.com/"," ");
+            String[] split = url.split("\\?");
+            if(ossUtil.deleteFile(split[0])){
+                productMapper.deleteById(id);
+                baseVo.setCode(0);
+                baseVo.setMessage("删除成功");
+                return baseVo;
+            }else{
+                baseVo.setCode(1);
+                baseVo.setMessage("删除失败");
+                return baseVo;
+            }
         }
+        catch (Exception e){
+            baseVo.setCode(1);
+            baseVo.setMessage(e.getMessage());
+            return baseVo;
+        }
+
     }
 }
