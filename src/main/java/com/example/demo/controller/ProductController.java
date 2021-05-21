@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.example.demo.annotation.PassToken;
 import com.example.demo.ao.ReleaseAo;
 import com.example.demo.entity.Brand;
 import com.example.demo.entity.Product;
@@ -41,11 +42,11 @@ public class ProductController {
     @Autowired
     OssUtil ossUtil;
 
-    /**列出所有商品*/
+    /**根据需求列出对应商品概览*/
     @GetMapping("/product")
     @ResponseBody
-    public List<ProductVo> listAll(){
-        return productService.showAllProduct();
+    public List<ProductVo> list(@RequestParam("productType")String productType){
+        return productService.showProduct(productType);
     }
 
     /**发布商品*/
@@ -53,7 +54,6 @@ public class ProductController {
     @ResponseBody
     public Boolean release(@RequestPart("productImage")MultipartFile productImage, @RequestPart("releaseProduct")ReleaseAo releaseProduct){
         return productService.releaseProduct(productImage,releaseProduct);
-
     }
 
     /**删除商品*/
