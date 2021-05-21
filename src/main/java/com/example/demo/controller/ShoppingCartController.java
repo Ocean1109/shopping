@@ -2,6 +2,7 @@ package com.example.demo.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
+import com.example.demo.annotation.UserLoginToken;
 import com.example.demo.ao.ShoppingCartAo;
 import com.example.demo.entity.Product;
 import com.example.demo.entity.ShoppingCart;
@@ -27,6 +28,7 @@ public class ShoppingCartController {
 
     @PostMapping("/ShoppingCart")
     @ResponseBody
+    @UserLoginToken
     public ProductCartVo ProductCartControlling(@RequestBody ShoppingCartAo product){
         ProductCartVo result = new ProductCartVo();
 
@@ -40,6 +42,7 @@ public class ShoppingCartController {
         return result;
     }
 
+    /**添加商品*/
     public ProductCartVo addProduct(ShoppingCartAo product){
         ProductCartVo result = new ProductCartVo();
         QueryWrapper<ShoppingCart> shoppingCartQueryWrapper = Wrappers.query();
@@ -78,6 +81,7 @@ public class ShoppingCartController {
         return result;
     }
 
+    /**删除商品*/
     public ProductCartVo delProduct(ShoppingCartAo product){
         ProductCartVo result = new ProductCartVo();
         QueryWrapper<ShoppingCart> shoppingCartQueryWrapper = Wrappers.query();
@@ -106,6 +110,7 @@ public class ShoppingCartController {
         return result;
     }
 
+    /**列出商品列表*/
     public ProductCartVo addShoppingCartList(ShoppingCartAo product, ProductCartVo productCartVo){
         QueryWrapper<ShoppingCart> shoppingCartQueryWrapper = Wrappers.query();
         shoppingCartQueryWrapper.eq("user_id", product.getUserId());

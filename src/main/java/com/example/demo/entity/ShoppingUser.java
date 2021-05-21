@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 public class ShoppingUser {
     @TableId(value = "id", type = IdType.AUTO)
     private int id;
@@ -18,6 +19,8 @@ public class ShoppingUser {
     private String address;
     private int age;
     private int gender;
+    private String mail;
+
 
 
     public ShoppingUser(String tel, String password, String userName, String address, int age, int gender) {
