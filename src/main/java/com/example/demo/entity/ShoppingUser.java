@@ -22,6 +22,7 @@ public class ShoppingUser {
     private String mail;
 
 
+
     public ShoppingUser(String tel, String password, String userName, String address, int age, int gender) {
         this.tel = tel;
         this.password = password;
