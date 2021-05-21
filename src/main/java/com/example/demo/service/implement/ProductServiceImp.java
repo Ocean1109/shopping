@@ -44,10 +44,17 @@ public class ProductServiceImp implements ProductService {
     OssUtil ossUtil; //注入OssUtil
 
     @Override
-    public List<ProductVo> showAllProduct(){
+    public List<ProductVo> showProduct(String productType){
         List<ProductVo> allProduct=new ArrayList<>();
         QueryWrapper<Product> queryWrapper=new QueryWrapper<>();
-        queryWrapper.select("id","product_desc","product_image","product_price");
+        if(productType.equals("所有")){
+            queryWrapper.select("id","product_desc","product_image","product_price");
+        }else{
+            QueryWrapper<ProductType> productTypeQueryWrapper=new QueryWrapper<>();
+            productTypeQueryWrapper.eq("type_name",productType);
+            ProductType searchProductType=productTypeMapper.selectOne(productTypeQueryWrapper);
+            queryWrapper.select("id","product_desc","product_image","product_price").eq("product_type_id",searchProductType.getId());
+        }
         List<Product> products=productMapper.selectList(queryWrapper);
         for(Product product:products){
             allProduct.add(new ProductVo(product.getId(),product.getProductDesc(),product.getProductImage(),product.getProductPrice()));

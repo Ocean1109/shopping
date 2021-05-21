@@ -10,9 +10,10 @@ import java.util.List;
 
 public interface ProductService {
     /**
-     * @des 展示所有商品的信息
+     * @des 展示相应的商品的概览信息
+     * @param productType
      * @return 商品实体类list*/
-    List<ProductVo> showAllProduct();
+    List<ProductVo> showProduct(String productType);
     /**
      * @des 展示单个商品的信息
      * @param id
