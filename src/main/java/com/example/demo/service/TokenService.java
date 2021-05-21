@@ -19,7 +19,6 @@ public class TokenService {
     private String secret = "123456";
     // http请求中header中token的key
     private String header = "token";
-    private static Map<String, String> tokenMap = new HashMap<>();
 
     /**
      * 生成token
@@ -41,8 +40,6 @@ public class TokenService {
                 .setExpiration(expireDate)
                 .signWith(SignatureAlgorithm.HS512, secret)
                 .compact();
-        // 把token添加到缓存中
-        tokenMap.put(subject, userToken);
         return userToken;
     }
 
@@ -109,8 +106,4 @@ public class TokenService {
         return getTokenClaim(token).getIssuedAt();
     }
 
-
-    public Map<String, String> getTokenMap() {
-        return tokenMap;
-    }
 }

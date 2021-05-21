@@ -47,13 +47,6 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
                 if (token == null) {
                     throw new RuntimeException("无token，请重新登录");
                 }
-                // 获取 token 中的 user id
-                String userid = tokenService.getUseridFromToken(token);
-                String compareToken = tokenService.getTokenMap().get(userid);
-                if (compareToken != null && !compareToken.equals(token)) {
-                    response.sendError(400, "token已经失效,请重新登录");
-                    return false;
-                }
                 Claims claims = null;
                 try {
                     claims = tokenService.getTokenClaim(token);
