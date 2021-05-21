@@ -44,9 +44,9 @@ public class ProductController {
     OssUtil ossUtil;
 
     /**根据需求列出对应商品概览*/
-    @GetMapping("/product")
+    @GetMapping("/product/{productType}")
     @ResponseBody
-    public List<ProductVo> list(@RequestParam("productType")String productType){
+    public List<ProductVo> list(@PathVariable("productType")String productType){
         return productService.showProduct(productType);
     }
 
