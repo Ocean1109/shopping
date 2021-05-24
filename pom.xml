@@ -17,6 +17,11 @@
         <java.version>11</java.version>
     </properties>
     <dependencies>
+        <dependency>
+            <groupId>com.sun.mail</groupId>
+            <artifactId>javax.mail</artifactId>
+            <version>1.6.2</version>
+        </dependency>
         <!--阿里云OSS-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -45,7 +50,6 @@
             <artifactId>activation</artifactId>
             <version>1.1.1</version>
         </dependency>
-
         <!--JDBC-->
         <dependency>
             <groupId>org.springframework.boot</groupId>

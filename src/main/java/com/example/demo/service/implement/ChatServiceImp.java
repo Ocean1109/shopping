@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.example.demo.entity.Chat;
 import com.example.demo.mapper.ChatMapper;
 import com.example.demo.service.ChatService;
+import com.example.demo.vo.ChatDetailVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,5 +23,9 @@ public class ChatServiceImp implements ChatService {
         chatQueryWrapper.eq("user_id",userId);
         result=chatMapper.selectList(chatQueryWrapper);
         return result;
+    }
+    @Override
+    public List<ChatDetailVo> showDetail(int chatId){
+        return null;
     }
 }
