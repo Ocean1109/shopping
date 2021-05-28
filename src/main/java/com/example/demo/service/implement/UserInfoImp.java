@@ -12,6 +12,7 @@ import com.example.demo.service.UserInfoService;
 import com.example.demo.util.PatternMatchUtil;
 import com.example.demo.util.SendMailUtil;
 import com.example.demo.vo.BaseVo;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -97,6 +98,9 @@ public class UserInfoImp implements UserInfoService {
 
         String code = SendMailUtil.sendCode(queryUser.getMail());
 
+        DelCodeSubThread delCodeSubThread = new DelCodeSubThread(sendCodeAo.getId());
+        delCodeSubThread.run();
+
         if(code == "SendingException"){
             result.setCode(1);
             result.setMessage("发送失败");
@@ -160,5 +164,42 @@ public class UserInfoImp implements UserInfoService {
         return result;
     }
 
+}
 
+
+class DelCodeSubThread implements Runnable {
+
+    @Autowired
+    private ShoppingUserMapper shoppingUserMapper;
+
+    private int id;
+
+    DelCodeSubThread(int id){
+        this.id = id;
+    }
+
+    @Override
+    public void run() {
+        try {
+            Thread.sleep(30000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        QueryWrapper<ShoppingUser> shoppingUserQueryWrapper = Wrappers.query();
+        shoppingUserQueryWrapper.eq("id", id);
+        ShoppingUser queryUser = shoppingUserMapper.selectOne(shoppingUserQueryWrapper);
+
+        ShoppingUser newUserInfo = new ShoppingUser(
+                queryUser.getId(),
+                queryUser.getTel(),
+                queryUser.getPassword(),
+                queryUser.getUserName(),
+                queryUser.getToken(),
+                queryUser.getAddress(),
+                queryUser.getAge(),
+                queryUser.getGender(),
+                queryUser.getMail(),
+                "");
+        shoppingUserMapper.update(newUserInfo, shoppingUserQueryWrapper);
+    }
 }
