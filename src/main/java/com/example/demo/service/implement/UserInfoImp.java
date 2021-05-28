@@ -98,8 +98,8 @@ public class UserInfoImp implements UserInfoService {
 
         String code = SendMailUtil.sendCode(queryUser.getMail());
 
-        DelCodeSubThread delCodeSubThread = new DelCodeSubThread(sendCodeAo.getId());
-        delCodeSubThread.run();
+        DelCodeSubThread delCodeSubThread = new DelCodeSubThread(sendCodeAo.getId(), shoppingUserMapper);
+        delCodeSubThread.start();
 
         if(code == "SendingException"){
             result.setCode(1);
@@ -167,21 +167,21 @@ public class UserInfoImp implements UserInfoService {
 }
 
 
-class DelCodeSubThread implements Runnable {
+class DelCodeSubThread extends Thread {
 
-    @Autowired
     private ShoppingUserMapper shoppingUserMapper;
 
     private int id;
 
-    DelCodeSubThread(int id){
+    DelCodeSubThread(int id, ShoppingUserMapper shoppingUserMapper){
         this.id = id;
+        this.shoppingUserMapper = shoppingUserMapper;
     }
 
     @Override
     public void run() {
         try {
-            Thread.sleep(30000);
+            Thread.sleep(300000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

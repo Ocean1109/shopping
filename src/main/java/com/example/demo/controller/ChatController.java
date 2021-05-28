@@ -1,4 +1,4 @@
-package com.example.demo.controller;
+/**package com.example.demo.controller;
 
 import com.example.demo.entity.Chat;
 import com.example.demo.service.ChatService;
@@ -34,4 +34,4 @@ public class ChatController {
 
         return chatService.showDetail(chatId);
     }
-}
+}*/
