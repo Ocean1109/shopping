@@ -20,6 +20,7 @@ public class ShoppingUser {
     private int age;
     private int gender;
     private String mail;
+    private String code;
 
 
 
