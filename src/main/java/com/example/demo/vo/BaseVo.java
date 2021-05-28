@@ -23,7 +23,10 @@ public class BaseVo {
      * 1: 失败
      * 修改密码：
      * 0: 成功
-     * 1: 失败*/
+     * 1: 失败
+     * 点赞：
+     * 0: 点赞
+     * 1: 取消点赞*/
     private int code;
     private String message;
 }

@@ -1,11 +1,9 @@
 package com.example.demo.controller;
 
-import com.example.demo.annotation.UserLoginToken;
 import com.example.demo.ao.ChangeMailAo;
 import com.example.demo.ao.ChangePasswordAo;
 import com.example.demo.ao.SendCodeAo;
 import com.example.demo.ao.UserInfoAo;
-import com.example.demo.mapper.ShoppingUserMapper;
 import com.example.demo.service.UserInfoService;
 import com.example.demo.vo.BaseVo;
 import org.springframework.beans.factory.annotation.Autowired;
