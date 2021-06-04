@@ -16,6 +16,10 @@ public class OssController {
     @Autowired
     OssUtil ossUtil; //注入OssUtil
 
+    /**
+     * @param file
+     * @return
+     */
     @PostMapping("/uploadfile")
     public Object fileUpload(@RequestParam("file") MultipartFile file)
     {

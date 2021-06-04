@@ -25,6 +25,10 @@ public class ShoppingCartController {
     @Autowired
     private ShoppingCartService shoppingCartService;
 
+    /**
+     * @param product
+     * @return
+     */
     @PostMapping("/ShoppingCart")
     @ResponseBody
     public ProductCartVo ProductCartControlling(@RequestBody ShoppingCartAo product){

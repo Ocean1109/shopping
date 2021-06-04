@@ -12,4 +12,9 @@ public class OrderProduct {
     private int id;
     private int orderId;
     private int productId;
+
+    public OrderProduct(int orderId, int productId) {
+        this.orderId = orderId;
+        this.productId = productId;
+    }
 }
