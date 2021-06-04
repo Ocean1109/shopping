@@ -1,18 +1,16 @@
 package com.example.demo.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.sql.Timestamp;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ShoppingOrder {
-    @TableId(value = "id", type = IdType.AUTO)
+public class ExtendShoppingOrder {
     private int id;
     private int buyingUserId;
     private int tradeStatus;
@@ -22,8 +20,10 @@ public class ShoppingOrder {
     private Timestamp payTime;
     private Timestamp completionTime;
     private Timestamp createTime;
+    private List<Product> productList;
 
-    public ShoppingOrder(int buyingUserId, int tradeStatus, int payStatus, Double orderAmount, Double payAmount, Timestamp payTime, Timestamp completionTime, Timestamp createTime) {
+    public ExtendShoppingOrder(int id, int buyingUserId, int tradeStatus, int payStatus, Double orderAmount, Double payAmount, Timestamp payTime, Timestamp completionTime, Timestamp createTime) {
+        this.id = id;
         this.buyingUserId = buyingUserId;
         this.tradeStatus = tradeStatus;
         this.payStatus = payStatus;

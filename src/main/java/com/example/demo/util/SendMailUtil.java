@@ -6,15 +6,19 @@ import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
+/**
+ * 发送邮件工具类
+ */
+
 public class SendMailUtil {
 
     /**
-     * 发送一封邮件给指定收信人
      * @param receiverAddress
      * @param title
      * @param body
      * @return 是否发送成功
      */
+    /**发送一封邮件给指定收信人*/
     public static boolean send(String receiverAddress, String title, String body) {
         boolean result = true;
 
@@ -52,10 +56,10 @@ public class SendMailUtil {
     }
 
     /**
-     * 发送一封验证码邮件给指定收信人
      * @param receiverAddress
      * @return 验证码内容
      */
+    /**发送一封验证码邮件给指定收信人*/
     public static String sendCode(String receiverAddress){
 
         Random r = new Random();

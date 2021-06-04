@@ -3,13 +3,11 @@ package com.example.demo.controller;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.example.demo.ao.LikeAo;
-import com.example.demo.ao.UserInfoAo;
 import com.example.demo.entity.Praise;
 import com.example.demo.entity.ShoppingUser;
 import com.example.demo.mapper.PraiseMapper;
 import com.example.demo.mapper.ShoppingUserMapper;
 import com.example.demo.vo.BaseVo;
-import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,8 +17,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 @Controller
 public class PraiseController {
@@ -31,6 +27,11 @@ public class PraiseController {
     @Autowired
     private ShoppingUserMapper shoppingUserMapper;
 
+    /**
+     * @param likeAo
+     * @return
+     */
+    /**点赞和取消点赞*/
     @PostMapping("/Like")
     @ResponseBody
     public BaseVo Like(@RequestBody LikeAo likeAo){

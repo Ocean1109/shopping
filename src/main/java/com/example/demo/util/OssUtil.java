@@ -100,18 +100,30 @@ public class OssUtil {
         return null;
     }
 
-    //获取去掉参数的完整路径
+    /**
+     * @param url
+     * @return
+     */
+    /**获取去掉参数的完整路径*/
     private String getShortUrl(String url) {
         String[] imgUrls = url.split("\\?");
         return imgUrls[0].trim();
     }
 
-    //获取带参数的完整路径
+    /**
+     * @param url
+     * @return
+     */
+    /**获取带参数的完整路径*/
     private String getLongUrl(String url) {
         return url.trim();
     }
 
-    // 获得url链接
+    /**
+     * @param key
+     * @return
+     */
+    /**获得url链接*/
     private String getUrl(String key) {
         // 设置URL过期时间为20年 3600l* 1000*24*365*20
         Date expiration = new Date(new Date().getTime() + 3600l * 1000 * 24 * 365 * 20);
@@ -124,7 +136,11 @@ public class OssUtil {
         return null;
     }
 
-    // 上传文件
+    /**
+     * @param file
+     * @return
+     */
+    /**上传文件*/
     private String uploadImg2Oss(MultipartFile file) {
         //1、限制最大文件为20M
         if (file.getSize() > 1024 * 1024 *20) {
@@ -146,8 +162,12 @@ public class OssUtil {
         }
     }
 
-
-    // 上传文件（指定文件名）
+    /**
+     * @param instream
+     * @param fileName
+     * @return
+     */
+    /**上传文件（指定文件名）*/
     private String uploadFile2OSS(InputStream instream, String fileName) {
         String ret = "";
         try {
@@ -176,6 +196,10 @@ public class OssUtil {
         return ret;
     }
 
+    /**
+     * @param objectName
+     * @return
+     */
     public Boolean deleteFile(String objectName){
         try {
             // 创建OSSClient实例。
@@ -192,6 +216,10 @@ public class OssUtil {
 
     }
 
+    /**
+     * @param FilenameExtension
+     * @return
+     */
     private static String getcontentType(String FilenameExtension) {
         if (FilenameExtension.equalsIgnoreCase(".bmp")) {
             return "image/bmp";

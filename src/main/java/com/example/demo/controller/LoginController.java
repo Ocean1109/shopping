@@ -25,6 +25,11 @@ public class LoginController {
     private TokenService tokenService;
 
 
+
+    /**
+     * @param user
+     * @return
+     */
     /**登录*/
     @PostMapping("/login")
     @ResponseBody
@@ -51,6 +56,11 @@ public class LoginController {
         }
     }
 
+
+    /**
+     * @param user
+     * @return
+     */
     /**注册*/
     @PostMapping("/register")
     @ResponseBody

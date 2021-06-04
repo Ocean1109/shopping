@@ -13,11 +13,19 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 public class MyMvcConfig implements WebMvcConfigurer {
 
     //视图跳转
+
+    /**
+     * @param registry
+     */
     @Override
     public void addViewControllers(ViewControllerRegistry registry){
         registry.addViewController("/login").setViewName("login");
     }
     //解决跨域问题
+
+    /**
+     * @param registry
+     */
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
@@ -28,13 +36,20 @@ public class MyMvcConfig implements WebMvcConfigurer {
                 .allowedHeaders("*");
     }
     //拦截器
+
+    /**
+     * @param registry
+     */
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(authenticationInterceptor())
                 .addPathPatterns("/**");
         // 拦截所有请求，通过判断是否有 @LoginRequired 注解 决定是否需要登录
     }
-    
+
+    /**
+     * @return
+     */
     @Bean
     public AuthenticationInterceptor authenticationInterceptor() {
         return new AuthenticationInterceptor();

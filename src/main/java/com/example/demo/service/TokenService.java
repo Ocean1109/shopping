@@ -43,6 +43,10 @@ public class TokenService {
         return userToken;
     }
 
+    /**
+     * @param subject
+     * @return
+     */
     public String createRefreshToken(String subject) {
         Date nowDate = new Date();
         Calendar calendar = Calendar.getInstance();

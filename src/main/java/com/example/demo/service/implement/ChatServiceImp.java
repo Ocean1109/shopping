@@ -27,6 +27,10 @@ public class ChatServiceImp implements ChatService {
     @Autowired
     ShoppingUserMapper shoppingUserMapper;
 
+    /**
+     * @param userId
+     * @return
+     */
     @Override
     public List<Chat> showAllChat(int userId){
         List<Chat> result=new ArrayList<>();
@@ -35,6 +39,11 @@ public class ChatServiceImp implements ChatService {
         result=chatMapper.selectList(chatQueryWrapper);
         return result;
     }
+
+    /**
+     * @param chatId
+     * @return
+     */
     @Override
     public List<ChatDetailVo> showDetail(int chatId){
         List<ChatDetailVo> result=new ArrayList<>();
@@ -46,6 +55,12 @@ public class ChatServiceImp implements ChatService {
         }
         return result;
     }
+
+    /**
+     * @param chatId
+     * @param userId
+     * @param content
+     */
     @Override
     public void insertChat(int chatId,int userId,String content){
         //获取当前时间

@@ -2,7 +2,6 @@ package com.example.demo.controller;
 
 import com.example.demo.ao.ChangeMailAo;
 import com.example.demo.ao.ChangePasswordAo;
-import com.example.demo.ao.SendCodeAo;
 import com.example.demo.ao.UserInfoAo;
 import com.example.demo.service.UserInfoService;
 import com.example.demo.vo.BaseVo;
@@ -18,6 +17,10 @@ public class UserInfoController {
     @Autowired
     UserInfoService userInfoService;
 
+    /**
+     * @param userInfoAo
+     * @return
+     */
     /**更改用户信息*/
     @PostMapping("/UpdateUserInfo")
     @ResponseBody
@@ -25,6 +28,10 @@ public class UserInfoController {
         return userInfoService.UpdateUserInfo(userInfoAo);
     }
 
+    /**
+     * @param changeMailAo
+     * @return
+     */
     /**更改用户邮箱*/
     @PostMapping("/ChangeMail")
     @ResponseBody
@@ -32,13 +39,21 @@ public class UserInfoController {
         return userInfoService.ChangeMail(changeMailAo);
     }
 
+    /**
+     * @param id
+     * @return
+     */
     /**获取验证码*/
     @PostMapping("/SendCode")
     @ResponseBody
-    public BaseVo SendCode(@RequestBody SendCodeAo sendCodeAo){
-        return userInfoService.SendCode(sendCodeAo);
+    public BaseVo SendCode(@RequestBody int id){
+        return userInfoService.SendCode(id);
     }
 
+    /**
+     * @param changePasswordAo
+     * @return
+     */
     /**更改用户密码*/
     @PostMapping("/ChangePassword")
     @ResponseBody

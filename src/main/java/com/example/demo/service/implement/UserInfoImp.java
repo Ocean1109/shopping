@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.example.demo.ao.ChangeMailAo;
 import com.example.demo.ao.ChangePasswordAo;
-import com.example.demo.ao.SendCodeAo;
 import com.example.demo.ao.UserInfoAo;
 import com.example.demo.entity.ShoppingUser;
 import com.example.demo.mapper.ShoppingUserMapper;
@@ -12,7 +11,6 @@ import com.example.demo.service.UserInfoService;
 import com.example.demo.util.PatternMatchUtil;
 import com.example.demo.util.SendMailUtil;
 import com.example.demo.vo.BaseVo;
-import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +20,11 @@ public class UserInfoImp implements UserInfoService {
     @Autowired
     private ShoppingUserMapper shoppingUserMapper;
 
+    /**
+     * @param userInfoAo
+     * @return
+     */
+    /**更新用户信息*/
     public BaseVo UpdateUserInfo(UserInfoAo userInfoAo){
         BaseVo result = new BaseVo();
 
@@ -51,6 +54,11 @@ public class UserInfoImp implements UserInfoService {
         return result;
     }
 
+    /**
+     * @param changeMailAo
+     * @return
+     */
+    /**更新邮箱*/
     public BaseVo ChangeMail(ChangeMailAo changeMailAo){
         BaseVo result = new BaseVo();
 
@@ -89,16 +97,21 @@ public class UserInfoImp implements UserInfoService {
         return result;
     }
 
-    public BaseVo SendCode(SendCodeAo sendCodeAo){
+    /**
+     * @param id
+     * @return
+     */
+    /**发送验证码*/
+    public BaseVo SendCode(int id){
         BaseVo result = new BaseVo();
 
         QueryWrapper<ShoppingUser> shoppingUserQueryWrapper = Wrappers.query();
-        shoppingUserQueryWrapper.eq("id", sendCodeAo.getId());
+        shoppingUserQueryWrapper.eq("id", id);
         ShoppingUser queryUser = shoppingUserMapper.selectOne(shoppingUserQueryWrapper);
 
         String code = SendMailUtil.sendCode(queryUser.getMail());
 
-        DelCodeSubThread delCodeSubThread = new DelCodeSubThread(sendCodeAo.getId(), shoppingUserMapper);
+        DelCodeSubThread delCodeSubThread = new DelCodeSubThread(id, shoppingUserMapper);
         delCodeSubThread.start();
 
         if(code == "SendingException"){
@@ -125,6 +138,11 @@ public class UserInfoImp implements UserInfoService {
         return result;
     }
 
+    /**
+     * @param changePasswordAo
+     * @return
+     */
+    /**更改密码*/
     public BaseVo ChangePassword(ChangePasswordAo changePasswordAo){
         BaseVo result = new BaseVo();
 
@@ -173,11 +191,19 @@ class DelCodeSubThread extends Thread {
 
     private int id;
 
+    /**
+     * @param id
+     * @param shoppingUserMapper
+     */
     DelCodeSubThread(int id, ShoppingUserMapper shoppingUserMapper){
         this.id = id;
         this.shoppingUserMapper = shoppingUserMapper;
     }
 
+    /**
+     *
+     */
+    /**当用户5分钟未输入验证码，使该验证码失效*/
     @Override
     public void run() {
         try {
