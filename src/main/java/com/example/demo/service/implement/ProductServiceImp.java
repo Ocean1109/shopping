@@ -44,16 +44,30 @@ public class ProductServiceImp implements ProductService {
     OssUtil ossUtil; //注入OssUtil
 
     @Override
-    public List<ProductVo> showProduct(String productType){
+    public List<ProductVo> showProduct(String productType,String brand,String address){
         List<ProductVo> allProduct=new ArrayList<>();
         QueryWrapper<Product> queryWrapper=new QueryWrapper<>();
-        if(productType.equals("所有")){
+        if(productType.equals("全部")){
             queryWrapper.select("id","product_desc","product_image","product_price");
         }else{
-            QueryWrapper<ProductType> productTypeQueryWrapper=new QueryWrapper<>();
-            productTypeQueryWrapper.eq("type_name",productType);
-            ProductType searchProductType=productTypeMapper.selectOne(productTypeQueryWrapper);
-            queryWrapper.select("id","product_desc","product_image","product_price").eq("product_type_id",searchProductType.getId());
+            if(brand.equals("全部")&&address.equals("全部")){
+                QueryWrapper<ProductType> productTypeQueryWrapper=new QueryWrapper<>();
+                productTypeQueryWrapper.eq("type_name",productType);
+                ProductType searchProductType=productTypeMapper.selectOne(productTypeQueryWrapper);
+                queryWrapper.select("id","product_desc","product_image","product_price").eq("product_type_id",searchProductType.getId());
+            }else if(brand.equals("全部")&&!address.equals("全部")){//address需要进行选择
+                queryWrapper.select("id","product_desc","product_image","product_price").eq("product_address",address);
+            }else if(!brand.equals("全部")&&address.equals("全部")){//brand需要进行选择
+                QueryWrapper<Brand> brandQueryWrapper=new QueryWrapper<>();
+                brandQueryWrapper.eq("brand_name",brand);
+                Brand searchBrand=brandMapper.selectOne(brandQueryWrapper);
+                queryWrapper.select("id","product_desc","product_image","product_price").eq("brand_id",searchBrand.getId());
+            }else{//address和brand需要进行选择
+                QueryWrapper<Brand> brandQueryWrapper=new QueryWrapper<>();
+                brandQueryWrapper.eq("brand_name",brand);
+                Brand searchBrand=brandMapper.selectOne(brandQueryWrapper);
+                queryWrapper.select("id","product_desc","product_image","product_price").eq("brand_id",searchBrand.getId()).eq("product_address",address);
+            }
         }
         List<Product> products=productMapper.selectList(queryWrapper);
         for(Product product:products){
