@@ -43,18 +43,16 @@ public class ProductController {
     @Autowired
     OssUtil ossUtil;
 
-
     /**
      * @param productType
      * @return
      */
-    /**根据需求列出对应商品概览*/
-    @GetMapping("/product/{productType}")
+    /**根据商品类别列出对应商品概览*/
+    @GetMapping("/product/{productType}/{brand}/{address}")
     @ResponseBody
-    public List<ProductVo> list(@PathVariable("productType")String productType){
-        return productService.showProduct(productType);
+    public List<ProductVo> list(@PathVariable("productType")String productType,@PathVariable("brand")String brand,@PathVariable("address")String address){
+        return productService.showProduct(productType,brand,address);
     }
-
 
     /**
      * @param productImage

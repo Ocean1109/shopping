@@ -13,7 +13,8 @@ public interface ProductService {
      * @param productType
      * @return 商品实体类list*/
     /**展示相应的商品的概览信息*/
-    List<ProductVo> showProduct(String productType);
+    List<ProductVo> showProduct(String productType,String brand,String address);
+
     /**
      * @param id
      * @return 商品实体类*/
@@ -26,7 +27,7 @@ public interface ProductService {
     Boolean releaseProduct(MultipartFile productImage, ReleaseAo releaseProduct);
     /**
      * @param id
-     * @return 是否成功发布*/
-    /**发布一个商品*/
+     * @return 是否成功删除*/
+    /**删除一个商品*/
     BaseVo deleteProduct(int id);
 }
