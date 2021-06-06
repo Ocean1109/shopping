@@ -12,4 +12,9 @@ public class ProductImage {
     private int id;
     private int imageId;
     private int productId;
+
+    public ProductImage(int imageId, int productId) {
+        this.imageId = imageId;
+        this.productId = productId;
+    }
 }

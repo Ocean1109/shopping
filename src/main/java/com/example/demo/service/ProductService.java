@@ -23,7 +23,7 @@ public interface ProductService {
      * @des 发布一个商品
      * @param productImage,releaseProduct
      * @return 是否成功发布*/
-    Boolean releaseProduct(MultipartFile productImage, ReleaseAo releaseProduct);
+    Boolean releaseProduct(MultipartFile productImage, List<MultipartFile> moreImages,ReleaseAo releaseProduct);
     /**
      * @des 删除一个商品
      * @param id

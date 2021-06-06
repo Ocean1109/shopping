@@ -1,15 +1,10 @@
 package com.example.demo.service.implement;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.example.demo.ao.ReleaseAo;
-import com.example.demo.entity.Brand;
-import com.example.demo.entity.Product;
-import com.example.demo.entity.ProductRule;
-import com.example.demo.entity.ProductType;
-import com.example.demo.mapper.BrandMapper;
-import com.example.demo.mapper.ProductMapper;
-import com.example.demo.mapper.ProductRuleMapper;
-import com.example.demo.mapper.ProductTypeMapper;
+import com.example.demo.entity.*;
+import com.example.demo.mapper.*;
 import com.example.demo.service.ProductService;
 import com.example.demo.service.TokenService;
 import com.example.demo.util.OssUtil;
@@ -30,6 +25,10 @@ import java.util.List;
 @Service
 public class ProductServiceImp implements ProductService {
 
+    @Autowired
+    ProductImageMapper productImageMapper;
+    @Autowired
+    ImageMapper imageMapper;
     @Autowired
     ProductMapper productMapper;
     @Autowired
@@ -83,7 +82,7 @@ public class ProductServiceImp implements ProductService {
     }
 
     @Override
-    public Boolean releaseProduct(MultipartFile productImage, ReleaseAo releaseProduct){
+    public Boolean releaseProduct(MultipartFile productImage, List<MultipartFile> moreImages,ReleaseAo releaseProduct){
         Product product=new Product();
         product.setProductDesc(releaseProduct.getProductDesc());
         product.setProductPrice(releaseProduct.getProductPrice());
@@ -134,6 +133,13 @@ public class ProductServiceImp implements ProductService {
         product.setProductImage(url);
         int result=productMapper.insert(product);
         if(result==1){
+            for(MultipartFile moreImage:moreImages){
+                String moreUrl=ossUtil.uploadFile(moreImage);
+                Image image=new Image(moreUrl);
+                imageMapper.insert(image);
+                ProductImage productImage1=new ProductImage(image.getId(),product.getId());
+                productImageMapper.insert(productImage1);
+            }
             return true;
         }else{
             return false;
@@ -149,7 +155,27 @@ public class ProductServiceImp implements ProductService {
             url=url.replaceFirst("(.*)//ocean1109.oss-cn-beijing.aliyuncs.com/"," ");
             String[] split = url.split("\\?");
             if(ossUtil.deleteFile(split[0])){
+                //从product表中删除
                 productMapper.deleteById(id);
+                //先从product_image表中找到之后要删除的imageId，再删除
+                QueryWrapper<ProductImage> productImageQueryWrapper=new QueryWrapper<>();
+                productImageQueryWrapper.eq("product_id",id);
+                List<ProductImage> deleteProductImage=productImageMapper.selectList(productImageQueryWrapper);
+                productImageMapper.delete(productImageQueryWrapper);
+                List<Integer> deleteImageId=new ArrayList<>();
+                for(ProductImage productImage:deleteProductImage){
+                    deleteImageId.add(productImage.getImageId());
+                }
+                QueryWrapper<Image> imageQueryWrapper=new QueryWrapper<>();
+                imageQueryWrapper.in("id",deleteImageId);
+                List<Image> deleteImages=imageMapper.selectList(imageQueryWrapper);
+                for(Image deleteImage:deleteImages){
+                    String urlImage=deleteImage.getImageUrl();
+                    url=url.replaceFirst("(.*)//ocean1109.oss-cn-beijing.aliyuncs.com/"," ");
+                    String[] splitImage = url.split("\\?");
+                    ossUtil.deleteFile(splitImage[0]);
+                }
+                imageMapper.delete(imageQueryWrapper);
                 baseVo.setCode(0);
                 baseVo.setMessage("删除成功");
                 return baseVo;
