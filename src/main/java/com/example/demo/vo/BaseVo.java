@@ -26,7 +26,13 @@ public class BaseVo {
      * 1: 失败
      * 点赞：
      * 0: 点赞
-     * 1: 取消点赞*/
+     * 1: 取消点赞
+     * 取消订单：
+     * 0: 成功
+     * 1: 失败
+     * 支付订单：
+     * 0: 成功
+     * 1: 失败*/
     private int code;
     private String message;
 }

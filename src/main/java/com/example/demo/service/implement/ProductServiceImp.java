@@ -42,6 +42,10 @@ public class ProductServiceImp implements ProductService {
     @Autowired
     OssUtil ossUtil; //注入OssUtil
 
+    /**
+     * @param productType
+     * @return
+     */
     @Override
     public List<ProductVo> showProduct(String productType,String brand,String address){
         List<ProductVo> allProduct=new ArrayList<>();
@@ -74,6 +78,11 @@ public class ProductServiceImp implements ProductService {
         }
         return allProduct;
     }
+
+    /**
+     * @param id
+     * @return
+     */
     @Override
     public Product showSingleProduct(int id) {
         Product product=new Product();
@@ -81,6 +90,11 @@ public class ProductServiceImp implements ProductService {
         return product;
     }
 
+    /**
+     * @param productImage,releaseProduct
+     * @param releaseProduct
+     * @return
+     */
     @Override
     public Boolean releaseProduct(MultipartFile productImage, List<MultipartFile> moreImages,ReleaseAo releaseProduct){
         Product product=new Product();
@@ -146,6 +160,10 @@ public class ProductServiceImp implements ProductService {
         }
     }
 
+    /**
+     * @param id
+     * @return
+     */
     @Override
     public BaseVo deleteProduct(int id) {
         BaseVo baseVo=new BaseVo();

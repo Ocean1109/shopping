@@ -12,6 +12,10 @@ public class UserServiceImp implements UserService {
     @Autowired
     ShoppingUserMapper shoppingUserMapper;
 
+    /**
+     * @param userId
+     * @return
+     */
     @Override
     public ShoppingUser showUser(String userId) {
         ShoppingUser showUser=new ShoppingUser();

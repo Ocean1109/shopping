@@ -22,6 +22,10 @@ public class ChatController {
     @Autowired
     TokenService tokenService;
 
+    /**
+     * @param request
+     * @return
+     */
     @GetMapping("/chat")
     @ResponseBody
     public List<Chat> showAllChat(HttpServletRequest request){
@@ -30,12 +34,19 @@ public class ChatController {
         return chatService.showAllChat(userId);
     }
 
+    /**
+     * @param chatId
+     * @return
+     */
     @GetMapping("/chat/{chatId}")
     @ResponseBody
     public List<ChatDetailVo> showDetail(@PathVariable("chatId")int chatId){
         return chatService.showDetail(chatId);
     }
 
+    /**
+     * @return
+     */
     @RequestMapping("/testChat")
     public String index(){
         return "index";

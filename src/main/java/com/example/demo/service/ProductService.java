@@ -10,23 +10,24 @@ import java.util.List;
 
 public interface ProductService {
     /**
-     * @des 展示相应的商品的概览信息
      * @param productType
      * @return 商品实体类list*/
+    /**展示相应的商品的概览信息*/
     List<ProductVo> showProduct(String productType,String brand,String address);
+
     /**
-     * @des 展示单个商品的信息
      * @param id
      * @return 商品实体类*/
+    /**展示单个商品的信息*/
     Product showSingleProduct(int id);
     /**
-     * @des 发布一个商品
      * @param productImage,releaseProduct
      * @return 是否成功发布*/
+    /**发布一个商品*/
     Boolean releaseProduct(MultipartFile productImage, List<MultipartFile> moreImages,ReleaseAo releaseProduct);
     /**
-     * @des 删除一个商品
      * @param id
      * @return 是否成功删除*/
+    /**删除一个商品*/
     BaseVo deleteProduct(int id);
 }

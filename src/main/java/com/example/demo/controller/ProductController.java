@@ -43,6 +43,10 @@ public class ProductController {
     @Autowired
     OssUtil ossUtil;
 
+    /**
+     * @param productType
+     * @return
+     */
     /**根据商品类别列出对应商品概览*/
     @GetMapping("/product/{productType}/{brand}/{address}")
     @ResponseBody
@@ -50,7 +54,11 @@ public class ProductController {
         return productService.showProduct(productType,brand,address);
     }
 
-
+    /**
+     * @param productImage
+     * @param releaseProduct
+     * @return
+     */
     /**发布商品*/
     @PostMapping("/release")
     @ResponseBody
@@ -58,6 +66,9 @@ public class ProductController {
         return productService.releaseProduct(productImage,moreImages,releaseProduct);
     }
 
+    /**
+     *
+     */
     /**删除商品*/
     @PostMapping("/delete")
     @ResponseBody
