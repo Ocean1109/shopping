@@ -24,7 +24,7 @@ public interface ProductService {
      * @param productImage,releaseProduct
      * @return 是否成功发布*/
     /**发布一个商品*/
-    Boolean releaseProduct(MultipartFile productImage, ReleaseAo releaseProduct);
+    Boolean releaseProduct(MultipartFile productImage, List<MultipartFile> moreImages,ReleaseAo releaseProduct);
     /**
      * @param id
      * @return 是否成功删除*/

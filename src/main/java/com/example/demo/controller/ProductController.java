@@ -62,8 +62,8 @@ public class ProductController {
     /**发布商品*/
     @PostMapping("/release")
     @ResponseBody
-    public Boolean release(@RequestPart("productImage")MultipartFile productImage, @RequestPart("releaseProduct")ReleaseAo releaseProduct){
-        return productService.releaseProduct(productImage,releaseProduct);
+    public Boolean release(@RequestPart("productImage")MultipartFile productImage, @RequestPart("moreImages")List<MultipartFile> moreImages,@RequestPart("releaseProduct")ReleaseAo releaseProduct){
+        return productService.releaseProduct(productImage,moreImages,releaseProduct);
     }
 
     /**
