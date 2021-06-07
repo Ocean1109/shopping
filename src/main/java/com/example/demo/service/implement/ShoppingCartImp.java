@@ -149,6 +149,7 @@ public class ShoppingCartImp implements ShoppingCartService {
     /**列出商品列表*/
     public List<ShoppingCartListInfo> addShoppingCartList(String token){
         QueryWrapper<ShoppingCart> shoppingCartQueryWrapper = Wrappers.query();
+        int userId=Integer.parseInt(tokenService.getUseridFromToken(token));
         shoppingCartQueryWrapper.eq("user_id", Integer.parseInt(tokenService.getUseridFromToken(token)));
         List<ShoppingCart> queryCart = shoppingCartMapper.selectList(shoppingCartQueryWrapper);
 
