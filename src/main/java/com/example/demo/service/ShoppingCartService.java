@@ -11,5 +11,5 @@ public interface ShoppingCartService {
     public ProductCartVo addProduct(ShoppingCartAo product);
     public ProductCartVo delProduct(ShoppingCartAo product);
     public ProductCartVo addShoppingCartList(ShoppingCartAo product, ProductCartVo productCartVo);
-    public List<ShoppingCartListInfo> addShoppingCartList(int id);
+    public List<ShoppingCartListInfo> addShoppingCartList(String token);
 }
