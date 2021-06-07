@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class ChangeMailAo {
-    private int id;
+    private String token;
     private String password;
     private String mail;
 }

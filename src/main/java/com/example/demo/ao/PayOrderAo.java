@@ -4,6 +4,6 @@ import lombok.Data;
 
 @Data
 public class PayOrderAo {
-    private int id;
+    private String token;
     private double payAmount;
 }

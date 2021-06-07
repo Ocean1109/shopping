@@ -12,6 +12,7 @@ import com.example.demo.mapper.OrderProductMapper;
 import com.example.demo.mapper.ProductMapper;
 import com.example.demo.mapper.ShoppingOrderMapper;
 import com.example.demo.service.OrderService;
+import com.example.demo.service.TokenService;
 import com.example.demo.vo.BaseVo;
 import com.example.demo.vo.OrderListVo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +35,9 @@ public class OrderServiceImp implements OrderService {
 
     @Autowired
     private ProductMapper productMapper;
+
+    @Autowired
+    private TokenService tokenService;
 
     /**
      * @param orderAo
@@ -59,7 +63,7 @@ public class OrderServiceImp implements OrderService {
         Timestamp time = Timestamp.valueOf(current);
 
         ShoppingOrder newShoppingOrder = new ShoppingOrder(
-                orderAo.getUserId(),
+                Integer.parseInt(tokenService.getUseridFromToken(orderAo.getToken())),
                 1,
                 1,
                 orderAmount,
@@ -72,7 +76,7 @@ public class OrderServiceImp implements OrderService {
         shoppingOrderMapper.insert(newShoppingOrder);
 
         QueryWrapper<ShoppingOrder> shoppingOrderQueryWrapper = Wrappers.query();
-        shoppingOrderQueryWrapper.eq("buying_user_id", orderAo.getUserId()).eq("create_time", time);
+        shoppingOrderQueryWrapper.eq("buying_user_id", Integer.parseInt(tokenService.getUseridFromToken(orderAo.getToken()))).eq("create_time", time);
         ShoppingOrder queryOrder = shoppingOrderMapper.selectOne(shoppingOrderQueryWrapper);
 
         OrderProduct newOrder;
@@ -98,7 +102,7 @@ public class OrderServiceImp implements OrderService {
         BaseVo result = new BaseVo();
 
         QueryWrapper<ShoppingOrder> shoppingOrderQueryWrapper = Wrappers.query();
-        shoppingOrderQueryWrapper.eq("id", payOrderAo.getId());
+        shoppingOrderQueryWrapper.eq("id", Integer.parseInt(tokenService.getUseridFromToken(payOrderAo.getToken())));
         ShoppingOrder queryOrder = shoppingOrderMapper.selectOne(shoppingOrderQueryWrapper);
 
         if(queryOrder == null){

@@ -10,6 +10,7 @@ import com.example.demo.mapper.ProductMapper;
 import com.example.demo.mapper.ShoppingCartMapper;
 import com.example.demo.mapper.ShoppingOrderMapper;
 import com.example.demo.service.ShoppingCartService;
+import com.example.demo.service.TokenService;
 import com.example.demo.vo.ProductCartVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,9 @@ public class ShoppingCartImp implements ShoppingCartService {
     @Autowired
     private ProductMapper productMapper;
 
+    @Autowired
+    private TokenService tokenService;
+
     public ProductCartVo ProductCartControlling(ShoppingCartAo product){
         ProductCartVo result;
 
@@ -46,7 +50,7 @@ public class ShoppingCartImp implements ShoppingCartService {
     public ProductCartVo addProduct(ShoppingCartAo product){
         ProductCartVo result = new ProductCartVo();
         QueryWrapper<ShoppingCart> shoppingCartQueryWrapper = Wrappers.query();
-        shoppingCartQueryWrapper.eq("product_id", product.getProductId());
+        shoppingCartQueryWrapper.eq("product_id", Integer.parseInt(tokenService.getUseridFromToken(product.getToken())));
         ShoppingCart queryCart = shoppingCartMapper.selectOne(shoppingCartQueryWrapper);
 
         if(queryCart!=null){//购物车某个商品数量增加
@@ -69,7 +73,7 @@ public class ShoppingCartImp implements ShoppingCartService {
                 return result;
             }
 
-            ShoppingCart newCart = new ShoppingCart(product.getUserId(), queryProduct.getId(), product.getNum());
+            ShoppingCart newCart = new ShoppingCart(Integer.parseInt(tokenService.getUseridFromToken(product.getToken())), queryProduct.getId(), product.getNum());
             shoppingCartMapper.insert(newCart);
 
             result.setSuccess(true);
@@ -113,7 +117,7 @@ public class ShoppingCartImp implements ShoppingCartService {
     /**列出商品列表*/
     public ProductCartVo addShoppingCartList(ShoppingCartAo product, ProductCartVo productCartVo){
         QueryWrapper<ShoppingCart> shoppingCartQueryWrapper = Wrappers.query();
-        shoppingCartQueryWrapper.eq("user_id", product.getUserId());
+        shoppingCartQueryWrapper.eq("user_id", Integer.parseInt(tokenService.getUseridFromToken(product.getToken())));
         List<ShoppingCart> queryCart = shoppingCartMapper.selectList(shoppingCartQueryWrapper);
 
         QueryWrapper<Product> productQueryWrapper = Wrappers.query();

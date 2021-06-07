@@ -7,6 +7,7 @@ import com.example.demo.entity.Praise;
 import com.example.demo.entity.ShoppingUser;
 import com.example.demo.mapper.PraiseMapper;
 import com.example.demo.mapper.ShoppingUserMapper;
+import com.example.demo.service.TokenService;
 import com.example.demo.vo.BaseVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -27,6 +28,9 @@ public class PraiseController {
     @Autowired
     private ShoppingUserMapper shoppingUserMapper;
 
+    @Autowired
+    private TokenService tokenService;
+
     /**
      * @param likeAo
      * @return
@@ -38,10 +42,10 @@ public class PraiseController {
         BaseVo result = new BaseVo();
 
         QueryWrapper<Praise> praiseQueryWrapper = Wrappers.query();
-        praiseQueryWrapper.eq("user_id", likeAo.getUserId()).eq("product_id", likeAo.getProductId());
+        praiseQueryWrapper.eq("user_id", Integer.parseInt(tokenService.getUseridFromToken(likeAo.getToken()))).eq("product_id", likeAo.getProductId());
         Praise queryPraise = praiseMapper.selectOne(praiseQueryWrapper);
         QueryWrapper<ShoppingUser> shoppingUserQueryWrapper = Wrappers.query();
-        shoppingUserQueryWrapper.eq("id", likeAo.getUserId());
+        shoppingUserQueryWrapper.eq("id", Integer.parseInt(tokenService.getUseridFromToken(likeAo.getToken())));
         ShoppingUser queryUser = shoppingUserMapper.selectOne(shoppingUserQueryWrapper);
 
         String current = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format( new Date());
@@ -50,7 +54,7 @@ public class PraiseController {
         if(queryPraise == null){
             if(likeAo.isLike()){
                 Praise newPraise = new Praise(
-                        likeAo.getProductId(), likeAo.getUserId(), queryUser.getUserName(), 0, time
+                        likeAo.getProductId(), Integer.parseInt(tokenService.getUseridFromToken(likeAo.getToken())), queryUser.getUserName(), 0, time
                 );
                 praiseMapper.insert(newPraise);
                 result.setCode(0);
@@ -58,7 +62,7 @@ public class PraiseController {
             }
             else {
                 Praise newPraise = new Praise(
-                        likeAo.getProductId(), likeAo.getUserId(), queryUser.getUserName(), 1, time
+                        likeAo.getProductId(), Integer.parseInt(tokenService.getUseridFromToken(likeAo.getToken())), queryUser.getUserName(), 1, time
                 );
                 praiseMapper.insert(newPraise);
                 result.setCode(1);

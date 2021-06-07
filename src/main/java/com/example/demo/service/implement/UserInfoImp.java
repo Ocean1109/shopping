@@ -7,10 +7,12 @@ import com.example.demo.ao.ChangePasswordAo;
 import com.example.demo.ao.UserInfoAo;
 import com.example.demo.entity.ShoppingUser;
 import com.example.demo.mapper.ShoppingUserMapper;
+import com.example.demo.service.TokenService;
 import com.example.demo.service.UserInfoService;
 import com.example.demo.util.PatternMatchUtil;
 import com.example.demo.util.SendMailUtil;
 import com.example.demo.vo.BaseVo;
+import org.apache.ibatis.ognl.Token;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -19,6 +21,9 @@ public class UserInfoImp implements UserInfoService {
 
     @Autowired
     private ShoppingUserMapper shoppingUserMapper;
+
+    @Autowired
+    private TokenService tokenService;
 
     /**
      * @param userInfoAo
@@ -29,7 +34,7 @@ public class UserInfoImp implements UserInfoService {
         BaseVo result = new BaseVo();
 
         QueryWrapper<ShoppingUser> shoppingUserQueryWrapper = Wrappers.query();
-        shoppingUserQueryWrapper.eq("id", userInfoAo.getId());
+        shoppingUserQueryWrapper.eq("id", Integer.parseInt(tokenService.getUseridFromToken(userInfoAo.getToken())));
         ShoppingUser queryUser = shoppingUserMapper.selectOne(shoppingUserQueryWrapper);
 
 
@@ -63,7 +68,7 @@ public class UserInfoImp implements UserInfoService {
         BaseVo result = new BaseVo();
 
         QueryWrapper<ShoppingUser> shoppingUserQueryWrapper = Wrappers.query();
-        shoppingUserQueryWrapper.eq("id", changeMailAo.getId());
+        shoppingUserQueryWrapper.eq("id", Integer.parseInt(tokenService.getUseridFromToken(changeMailAo.getToken())));
         ShoppingUser queryUser = shoppingUserMapper.selectOne(shoppingUserQueryWrapper);
 
         String password = queryUser.getPassword();
@@ -147,7 +152,7 @@ public class UserInfoImp implements UserInfoService {
         BaseVo result = new BaseVo();
 
         QueryWrapper<ShoppingUser> shoppingUserQueryWrapper = Wrappers.query();
-        shoppingUserQueryWrapper.eq("id", changePasswordAo.getId());
+        shoppingUserQueryWrapper.eq("id", Integer.parseInt(tokenService.getUseridFromToken(changePasswordAo.getToken())));
         ShoppingUser queryUser = shoppingUserMapper.selectOne(shoppingUserQueryWrapper);
 
         String code = queryUser.getCode();

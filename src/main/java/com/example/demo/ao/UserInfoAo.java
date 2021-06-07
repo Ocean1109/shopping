@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class UserInfoAo {
-    private int id;
+    private String token;
     private String tel;
     private String password;
     private String userName;
