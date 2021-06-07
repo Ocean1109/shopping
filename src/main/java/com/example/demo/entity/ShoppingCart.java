@@ -15,6 +15,7 @@ public class ShoppingCart {
     private int userId;
     private int productId;
     private int productNumber;
+    private int purchased;
 
     public ShoppingCart(int userId, int productId, int productNumber) {
         this.userId = userId;

@@ -35,4 +35,10 @@ public class ShoppingCartController {
         return shoppingCartService.ProductCartControlling(product);
     }
 
+    @PostMapping("ShowShoppingCart")
+    @ResponseBody
+    public List<ShoppingCartListInfo> addShoppingCartList(@RequestBody int id){
+        return shoppingCartService.addShoppingCartList(id);
+    }
+
 }

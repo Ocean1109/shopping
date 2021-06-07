@@ -4,11 +4,11 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.example.demo.annotation.UserLoginToken;
 import com.example.demo.ao.ShoppingCartAo;
-import com.example.demo.entity.Product;
-import com.example.demo.entity.ShoppingCart;
-import com.example.demo.entity.ShoppingCartListInfo;
+import com.example.demo.entity.*;
+import com.example.demo.mapper.OrderProductMapper;
 import com.example.demo.mapper.ProductMapper;
 import com.example.demo.mapper.ShoppingCartMapper;
+import com.example.demo.mapper.ShoppingOrderMapper;
 import com.example.demo.service.ShoppingCartService;
 import com.example.demo.vo.ProductCartVo;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,7 +50,7 @@ public class ShoppingCartImp implements ShoppingCartService {
         ShoppingCart queryCart = shoppingCartMapper.selectOne(shoppingCartQueryWrapper);
 
         if(queryCart!=null){//购物车某个商品数量增加
-            ShoppingCart newCart = new ShoppingCart(queryCart.getId(), queryCart.getUserId(), queryCart.getProductId(), queryCart.getProductNumber() + product.getNum());
+            ShoppingCart newCart = new ShoppingCart(queryCart.getId(), queryCart.getUserId(), queryCart.getProductId(), queryCart.getProductNumber() + product.getNum(), 0);
             shoppingCartMapper.updateById(newCart);
 
             result.setSuccess(true);
@@ -100,7 +100,7 @@ public class ShoppingCartImp implements ShoppingCartService {
             shoppingCartMapper.deleteById(product.getProductId());
         }
         else{
-            ShoppingCart newCart = new ShoppingCart(queryCart.getId(), queryCart.getUserId(), queryCart.getProductId(), queryCart.getProductNumber() - product.getNum());
+            ShoppingCart newCart = new ShoppingCart(queryCart.getId(), queryCart.getUserId(), queryCart.getProductId(), queryCart.getProductNumber() - product.getNum(), 0);
             shoppingCartMapper.updateById(newCart);
             result.setSuccess(true);
             result.setMessage("删除成功");
@@ -127,16 +127,49 @@ public class ShoppingCartImp implements ShoppingCartService {
             Product queryProduct = productMapper.selectOne(productQueryWrapper);
 
             shoppingCartListInfo = new ShoppingCartListInfo(
+                    queryProduct.getId(),
                     queryProduct.getProductImage(),
                     queryProduct.getProductDesc(),
                     queryProduct.getProductPrice(),
-                    queryCart.get(i).getProductNumber());
+                    queryCart.get(i).getProductNumber(),
+                    0,
+                    queryCart.get(i).getPurchased());
             newCartListInfo.add(shoppingCartListInfo);
         }
 
         productCartVo.setShoppingCartListInfos(newCartListInfo);
 
         return productCartVo;
+    }
+
+    /**列出商品列表*/
+    public List<ShoppingCartListInfo> addShoppingCartList(int id){
+        QueryWrapper<ShoppingCart> shoppingCartQueryWrapper = Wrappers.query();
+        shoppingCartQueryWrapper.eq("user_id", id);
+        List<ShoppingCart> queryCart = shoppingCartMapper.selectList(shoppingCartQueryWrapper);
+
+        QueryWrapper<Product> productQueryWrapper = Wrappers.query();
+
+        List<ShoppingCartListInfo> newCartListInfo = new ArrayList<>();
+        ShoppingCartListInfo shoppingCartListInfo;
+
+        for(int i = 0; i < queryCart.size(); i++){
+            productQueryWrapper = Wrappers.query();
+            productQueryWrapper.eq("id", queryCart.get(i).getProductId());
+            Product queryProduct = productMapper.selectOne(productQueryWrapper);
+
+            shoppingCartListInfo = new ShoppingCartListInfo(
+                    queryProduct.getId(),
+                    queryProduct.getProductImage(),
+                    queryProduct.getProductDesc(),
+                    queryProduct.getProductPrice(),
+                    queryCart.get(i).getProductNumber(),
+                    0,
+                    queryCart.get(i).getPurchased());
+            newCartListInfo.add(shoppingCartListInfo);
+        }
+
+        return newCartListInfo;
     }
 
 }
