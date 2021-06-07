@@ -37,8 +37,8 @@ public class ShoppingCartController {
 
     @PostMapping("ShowShoppingCart")
     @ResponseBody
-    public List<ShoppingCartListInfo> addShoppingCartList(@RequestBody int id){
-        return shoppingCartService.addShoppingCartList(id);
+    public List<ShoppingCartListInfo> addShoppingCartList(@RequestBody String token){
+        return shoppingCartService.addShoppingCartList(token);
     }
 
 }
