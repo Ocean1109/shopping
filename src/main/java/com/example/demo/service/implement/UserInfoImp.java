@@ -12,6 +12,7 @@ import com.example.demo.service.UserInfoService;
 import com.example.demo.util.PatternMatchUtil;
 import com.example.demo.util.SendMailUtil;
 import com.example.demo.vo.BaseVo;
+import com.example.demo.vo.UserInfoVo;
 import org.apache.ibatis.ognl.Token;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,29 @@ public class UserInfoImp implements UserInfoService {
 
     @Autowired
     private TokenService tokenService;
+
+    /**
+     * @param token
+     * @return
+     */
+    /**展示用户信息*/
+    public UserInfoVo ShowUserInfo(String token){
+        UserInfoVo userInfoVo = new UserInfoVo();
+
+        QueryWrapper<ShoppingUser> shoppingUserQueryWrapper = Wrappers.query();
+        int id = Integer.parseInt(tokenService.getUseridFromToken(token));
+        shoppingUserQueryWrapper.eq("id", Integer.parseInt(tokenService.getUseridFromToken(token)));
+        ShoppingUser queryUser = shoppingUserMapper.selectOne(shoppingUserQueryWrapper);
+
+        userInfoVo.setUserName(queryUser.getUserName());
+        userInfoVo.setAddress(queryUser.getAddress());
+        userInfoVo.setAge(queryUser.getAge());
+        userInfoVo.setGender(queryUser.getGender());
+        userInfoVo.setMail(queryUser.getMail());
+        userInfoVo.setTel(queryUser.getTel());
+
+        return userInfoVo;
+    }
 
     /**
      * @param userInfoAo

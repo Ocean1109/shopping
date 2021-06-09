@@ -4,8 +4,16 @@ import com.example.demo.ao.ChangeMailAo;
 import com.example.demo.ao.ChangePasswordAo;
 import com.example.demo.ao.UserInfoAo;
 import com.example.demo.vo.BaseVo;
+import com.example.demo.vo.UserInfoVo;
 
 public interface UserInfoService {
+    /**
+     * @param token
+     * @return
+     */
+    /**展示用户信息*/
+    public UserInfoVo ShowUserInfo(String token);
+
     /**
      * @param userInfoAo
      * @return

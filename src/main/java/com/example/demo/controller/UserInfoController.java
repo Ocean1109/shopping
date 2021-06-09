@@ -5,10 +5,12 @@ import com.example.demo.ao.ChangePasswordAo;
 import com.example.demo.ao.UserInfoAo;
 import com.example.demo.service.UserInfoService;
 import com.example.demo.vo.BaseVo;
+import com.example.demo.vo.UserInfoVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
@@ -16,6 +18,17 @@ public class UserInfoController {
 
     @Autowired
     UserInfoService userInfoService;
+
+    /**
+     * @param token
+     * @return
+     */
+    /**展示用户信息*/
+    @PostMapping("/ShowUserInfo")
+    @ResponseBody
+    public UserInfoVo ShowUserInfo(@RequestPart("token") String token){
+        return userInfoService.ShowUserInfo(token);
+    }
 
     /**
      * @param userInfoAo
