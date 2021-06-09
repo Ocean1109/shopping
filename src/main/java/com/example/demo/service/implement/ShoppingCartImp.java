@@ -101,7 +101,7 @@ public class ShoppingCartImp implements ShoppingCartService {
         else if(queryCart.getProductNumber() <= num){//商品数量小于要删除的数量
             result.setSuccess(true);
             result.setMessage("删除成功");
-            shoppingCartMapper.deleteById(product.getProductId());
+            shoppingCartMapper.delete(shoppingCartQueryWrapper);
         }
         else{
             ShoppingCart newCart = new ShoppingCart(queryCart.getId(), queryCart.getUserId(), queryCart.getProductId(), queryCart.getProductNumber() - product.getNum(), 0);

@@ -61,8 +61,6 @@ public class UserInfoImp implements UserInfoService {
         shoppingUserQueryWrapper.eq("id", Integer.parseInt(tokenService.getUseridFromToken(userInfoAo.getToken())));
         ShoppingUser queryUser = shoppingUserMapper.selectOne(shoppingUserQueryWrapper);
 
-
-
         ShoppingUser newUserInfo = new ShoppingUser(
                 queryUser.getId(),
                 (userInfoAo.getTel()!=null)? userInfoAo.getTel(): queryUser.getTel(),

@@ -28,8 +28,6 @@ public interface UserInfoService {
     /**更新邮箱*/
     public BaseVo ChangeMail(ChangeMailAo changeMailAo);
 
-
-
     /**
      *
      * @param id
