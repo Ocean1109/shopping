@@ -36,7 +36,7 @@ public class ShoppingCartController {
         return shoppingCartService.ProductCartControlling(product);
     }
 
-    @PostMapping("ShowShoppingCart")
+    @PostMapping("/ShowShoppingCart")
     @ResponseBody
     public List<ShoppingCartListInfo> addShoppingCartList(@RequestPart("token") String token){
         return shoppingCartService.addShoppingCartList(token);
