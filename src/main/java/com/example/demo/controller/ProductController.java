@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.api.R;
 import com.example.demo.annotation.PassToken;
 import com.example.demo.annotation.UserLoginToken;
 import com.example.demo.ao.ReleaseAo;
@@ -62,7 +63,18 @@ public class ProductController {
     /**发布商品*/
     @PostMapping("/release")
     @ResponseBody
-    public Boolean release(@RequestPart("productImage")MultipartFile productImage, @RequestPart("moreImages")List<MultipartFile> moreImages,@RequestPart("releaseProduct")ReleaseAo releaseProduct){
+    public Boolean release(@RequestParam("productImage")MultipartFile productImage,
+                           @RequestParam("moreImages")List<MultipartFile> moreImages,
+                           @RequestPart("productDesc")String productDesc,
+                           @RequestPart("productPrice")Double productPrice,
+                           @RequestPart("productType")String productType,
+                           @RequestPart("brand")String brand,
+                           @RequestPart("user")String user,
+                           @RequestPart("productAddress")String productAddress,
+                           @RequestPart("numbers")int numbers,
+                           @RequestPart("rule")String rule,
+                           @RequestPart("productRule")String productRule){
+        ReleaseAo releaseProduct=new ReleaseAo(productDesc,productPrice,productType,brand,user,productAddress,numbers,rule,productRule);
         return productService.releaseProduct(productImage,moreImages,releaseProduct);
     }
 
