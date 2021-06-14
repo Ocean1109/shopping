@@ -7,6 +7,7 @@ import com.example.demo.entity.ShoppingUser;
 import com.example.demo.mapper.ChatDetailMapper;
 import com.example.demo.mapper.ShoppingUserMapper;
 import com.example.demo.service.ChatService;
+import com.example.demo.service.TokenService;
 import freemarker.log.Logger;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +29,8 @@ import java.util.concurrent.ConcurrentHashMap;
 @ServerEndpoint("/send/{chatId}/{topic}")
 @Component
 public class WebSocketServer {
+    @Autowired
+    TokenService tokenService;
 
     static Logger logger = Logger.getLogger("WebSocketServer");
     /**
@@ -105,6 +108,7 @@ public class WebSocketServer {
      */
     @OnMessage
     public void onMessage(String message, Session session) {
+//        int userId = Integer.parseInt(tokenService.getUseridFromToken(topic));
         logger.info("用户:" + topic + ",信息:" + message);
         //可以群发消息
         //消息保存到数据库、redis
@@ -114,9 +118,9 @@ public class WebSocketServer {
                 JSONObject jsonObject = JSON.parseObject(message);
                 //存到chat_detail数据库中
                 ChatService chatService=applicationContext.getBean(ChatService.class);
-                chatService.insertChat(Integer.parseInt(this.chatId),Integer.parseInt(this.topic), jsonObject.getString("content"));
+                chatService.insertChat(Integer.parseInt(this.chatId),Integer.parseInt(topic), jsonObject.getString("content"));
                 //追加发送人(防止串改)
-                jsonObject.put("from_topic", this.topic);
+                jsonObject.put("from_topic", topic);
                 String to_topic = jsonObject.getString("to_topic");
                 //传送给对应toUserId用户的websocket
                 if (StringUtils.isNotBlank(to_topic) && webSocketMap.containsKey(to_topic)) {
