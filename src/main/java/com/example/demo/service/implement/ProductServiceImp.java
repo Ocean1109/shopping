@@ -170,7 +170,7 @@ public class ProductServiceImp implements ProductService {
         try{
             Product deleteProduct=productMapper.selectById(id);
             String url=deleteProduct.getProductImage();
-            url=url.replaceFirst("(.*)//ocean1109.oss-cn-beijing.aliyuncs.com/"," ");
+            url=url.replaceFirst("(.*)//ocean1109.oss-cn-beijing.aliyuncs.com/","");
             String[] split = url.split("\\?");
             if(ossUtil.deleteFile(split[0])){
                 //从product表中删除
@@ -189,7 +189,7 @@ public class ProductServiceImp implements ProductService {
                 List<Image> deleteImages=imageMapper.selectList(imageQueryWrapper);
                 for(Image deleteImage:deleteImages){
                     String urlImage=deleteImage.getImageUrl();
-                    url=url.replaceFirst("(.*)//ocean1109.oss-cn-beijing.aliyuncs.com/"," ");
+                    url=url.replaceFirst("(.*)//ocean1109.oss-cn-beijing.aliyuncs.com/","");
                     String[] splitImage = url.split("\\?");
                     ossUtil.deleteFile(splitImage[0]);
                 }

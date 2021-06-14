@@ -65,15 +65,15 @@ public class ProductController {
     @ResponseBody
     public Boolean release(@RequestParam("productImage")MultipartFile productImage,
                            @RequestParam("moreImages")List<MultipartFile> moreImages,
-                           @RequestPart("productDesc")String productDesc,
-                           @RequestPart("productPrice")Double productPrice,
-                           @RequestPart("productType")String productType,
-                           @RequestPart("brand")String brand,
-                           @RequestPart("user")String user,
-                           @RequestPart("productAddress")String productAddress,
-                           @RequestPart("numbers")int numbers,
-                           @RequestPart("rule")String rule,
-                           @RequestPart("productRule")String productRule){
+                           @RequestParam("productDesc")String productDesc,
+                           @RequestParam("productPrice")Double productPrice,
+                           @RequestParam("productType")String productType,
+                           @RequestParam("brand")String brand,
+                           @RequestParam("user")String user,
+                           @RequestParam("productAddress")String productAddress,
+                           @RequestParam("numbers")int numbers,
+                           @RequestParam("rule")String rule,
+                           @RequestParam("productRule")String productRule){
         ReleaseAo releaseProduct=new ReleaseAo(productDesc,productPrice,productType,brand,user,productAddress,numbers,rule,productRule);
         return productService.releaseProduct(productImage,moreImages,releaseProduct);
     }

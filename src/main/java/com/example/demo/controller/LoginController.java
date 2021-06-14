@@ -8,6 +8,7 @@ import com.example.demo.entity.ShoppingUser;
 import com.example.demo.mapper.ShoppingUserMapper;
 import com.example.demo.service.TokenService;
 import com.example.demo.vo.BaseVo;
+import com.example.demo.vo.LoginSuccessVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -33,13 +34,13 @@ public class LoginController {
     /**登录*/
     @PostMapping("/login")
     @ResponseBody
-    public BaseVo login(@RequestBody LoginAo user){
-        BaseVo result;
+    public LoginSuccessVo login(@RequestBody LoginAo user){
+        LoginSuccessVo result;
         QueryWrapper<ShoppingUser> shoppingUserQueryWrapper= Wrappers.query();
         shoppingUserQueryWrapper.eq("tel",user.getTel());
         ShoppingUser queryUser=shoppingUserMapper.selectOne(shoppingUserQueryWrapper);
         if(queryUser==null){//用户不存在
-            result=new BaseVo(1,"该手机号未注册");
+            result=new LoginSuccessVo(1,"该手机号未注册","");
             return result;
         }else{
             if(queryUser.getPassword().equals(user.getPassword())){//登录成功
@@ -47,10 +48,10 @@ public class LoginController {
                 String token=tokenService.createToken(String.valueOf(queryUser.getId()));
                 queryUser.setToken(token);
                 shoppingUserMapper.updateById(queryUser);
-                result=new BaseVo(0,token);
+                result=new LoginSuccessVo(0,token,queryUser.getUserName());
                 return result;
             }else{//密码不正确
-                result=new BaseVo(2,"密码输入错误");
+                result=new LoginSuccessVo(2,"密码输入错误","");
                 return result;
             }
         }
