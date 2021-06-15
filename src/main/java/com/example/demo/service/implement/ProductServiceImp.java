@@ -9,6 +9,7 @@ import com.example.demo.service.ProductService;
 import com.example.demo.service.TokenService;
 import com.example.demo.util.OssUtil;
 import com.example.demo.vo.BaseVo;
+import com.example.demo.vo.ProductDetailVo;
 import com.example.demo.vo.ProductVo;
 import com.fasterxml.jackson.databind.ser.Serializers;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -84,10 +86,62 @@ public class ProductServiceImp implements ProductService {
      * @return
      */
     @Override
-    public Product showSingleProduct(int id) {
-        Product product=new Product();
-        product=productMapper.selectById(id);
-        return product;
+    public ProductDetailVo showSingleProduct(int id) {
+        Product product=productMapper.selectById(id);
+        ProductDetailVo productDetailVo = new ProductDetailVo();
+        //获取商品的类别名字
+        QueryWrapper<ProductType> productTypeQueryWrapper=new QueryWrapper<>();
+        productTypeQueryWrapper.eq("id",product.getProductTypeId());
+        ProductType productType=productTypeMapper.selectOne(productTypeQueryWrapper);
+        //获取商品的品牌名字
+        QueryWrapper<Brand> brandQueryWrapper=new QueryWrapper<>();
+        brandQueryWrapper.eq("id",product.getBrandId());
+        Brand brand=brandMapper.selectOne(brandQueryWrapper);
+        //获取商品的详细图片
+        QueryWrapper<ProductImage> productImageQueryWrapper=new QueryWrapper<>();
+        productImageQueryWrapper.eq("product_id",id);
+        List<ProductImage> productImageList=productImageMapper.selectList(productImageQueryWrapper);
+        List<Integer> imageId=new ArrayList<>();
+        for(ProductImage productImage:productImageList){
+            imageId.add(productImage.getImageId());
+        }
+        List<String> moreImages=new ArrayList<>();
+        QueryWrapper<Image> imageQueryWrapper=new QueryWrapper<>();
+        imageQueryWrapper.in("id",imageId);
+        List<Image> imageList=imageMapper.selectList(imageQueryWrapper);
+        for(Image image:imageList){
+            moreImages.add(image.getImageUrl());
+        }
+        //获取商品的规则
+        QueryWrapper<ProductRule> productRuleQueryWrapper=new QueryWrapper<>();
+        productRuleQueryWrapper.eq("id",product.getProductRuleId());
+        ProductRule productRule=productRuleMapper.selectOne(productRuleQueryWrapper);
+        String allRule=productRule.getRule();
+        List<String> resultRule=null;
+        if(allRule!=null){
+            String[] splitRule=allRule.split(" ");
+            resultRule= Arrays.asList(splitRule);
+        }
+        //将商品规则具体信息转换为List
+        String allProductRule=product.getProductRule();
+        List<String> resultProductRule=null;
+        if(allProductRule!=null){
+            String[] splitProductRule=allProductRule.split(" ");
+            resultProductRule=Arrays.asList(splitProductRule);
+        }
+        //向最终返回的实体中添加消息
+        productDetailVo.setProductDesc(product.getProductDesc());
+        productDetailVo.setProductImage(product.getProductImage());
+        productDetailVo.setMoreImages(moreImages);
+        productDetailVo.setProductPrice(product.getProductPrice());
+        productDetailVo.setProductType(productType.getTypeName());
+        productDetailVo.setProductBrand(brand.getBrandName());
+        productDetailVo.setPublishUserId(product.getPublishUserId());
+        productDetailVo.setProductAddress(product.getProductAddress());
+        productDetailVo.setNumbers(product.getNumbers());
+        productDetailVo.setRule(resultRule);
+        productDetailVo.setProductRule(resultProductRule);
+        return productDetailVo;
     }
 
     /**

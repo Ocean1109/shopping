@@ -3,6 +3,7 @@ package com.example.demo.service;
 import com.example.demo.ao.ReleaseAo;
 import com.example.demo.entity.Product;
 import com.example.demo.vo.BaseVo;
+import com.example.demo.vo.ProductDetailVo;
 import com.example.demo.vo.ProductVo;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -19,7 +20,7 @@ public interface ProductService {
      * @param id
      * @return 商品实体类*/
     /**展示单个商品的信息*/
-    Product showSingleProduct(int id);
+    ProductDetailVo showSingleProduct(int id);
     /**
      * @param productImage,releaseProduct
      * @return 是否成功发布*/
