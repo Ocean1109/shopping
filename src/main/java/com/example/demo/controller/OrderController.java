@@ -46,6 +46,17 @@ public class OrderController {
      * @param id
      * @return
      */
+    /**发货*/
+    @PostMapping("/sendingProduct")
+    @ResponseBody
+    public BaseVo sendingProduct(@RequestBody int id){
+        return orderService.sendingProduct(id);
+    }
+
+    /**
+     * @param id
+     * @return
+     */
     /**取消订单*/
     @PostMapping("/cancelOrder")
     @ResponseBody
