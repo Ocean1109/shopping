@@ -82,13 +82,13 @@ public class ShoppingCartImp implements ShoppingCartService {
     }
 
     /**删除商品*/
-    public ProductCartVo delProduct(ShoppingCartAo product){
+    public ProductCartVo delProduct(ShoppingCartAo shoppingCartAo){
         ProductCartVo result = new ProductCartVo();
         QueryWrapper<ShoppingCart> shoppingCartQueryWrapper = Wrappers.query();
-        shoppingCartQueryWrapper.eq("product_id", product.getProductId());
+        shoppingCartQueryWrapper.eq("product_id", shoppingCartAo.getProductId()).eq("user_id", Integer.parseInt(tokenService.getUseridFromToken(shoppingCartAo.getToken())));
         ShoppingCart queryCart = shoppingCartMapper.selectOne(shoppingCartQueryWrapper);
 
-        int num = product.getNum();
+        int num = shoppingCartAo.getNum();
 
         if(queryCart==null){//没有该商品
             result.setSuccess(false);
@@ -100,13 +100,17 @@ public class ShoppingCartImp implements ShoppingCartService {
             shoppingCartMapper.deleteById(product.getProductId());
         }
         else{
+<<<<<<< Updated upstream
             ShoppingCart newCart = new ShoppingCart(queryCart.getId(), queryCart.getUserId(), queryCart.getProductId(), queryCart.getProductNumber() - product.getNum());
+=======
+            ShoppingCart newCart = new ShoppingCart(queryCart.getId(), queryCart.getUserId(), queryCart.getProductId(), queryCart.getProductNumber() - shoppingCartAo.getNum(), 0);
+>>>>>>> Stashed changes
             shoppingCartMapper.updateById(newCart);
             result.setSuccess(true);
             result.setMessage("删除成功");
         }
 
-        result = addShoppingCartList(product, result);
+        result = addShoppingCartList(shoppingCartAo, result);
         return result;
     }
 
