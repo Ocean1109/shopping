@@ -101,16 +101,19 @@ public class ProductServiceImp implements ProductService {
         QueryWrapper<ProductImage> productImageQueryWrapper=new QueryWrapper<>();
         productImageQueryWrapper.eq("product_id",id);
         List<ProductImage> productImageList=productImageMapper.selectList(productImageQueryWrapper);
-        List<Integer> imageId=new ArrayList<>();
-        for(ProductImage productImage:productImageList){
-            imageId.add(productImage.getImageId());
-        }
-        List<String> moreImages=new ArrayList<>();
-        QueryWrapper<Image> imageQueryWrapper=new QueryWrapper<>();
-        imageQueryWrapper.in("id",imageId);
-        List<Image> imageList=imageMapper.selectList(imageQueryWrapper);
-        for(Image image:imageList){
-            moreImages.add(image.getImageUrl());
+        List<String> moreImages=null;
+        if(productImageList.size()!=0){
+            List<Integer> imageId=new ArrayList<>();
+            for(ProductImage productImage:productImageList){
+                imageId.add(productImage.getImageId());
+            }
+            moreImages=new ArrayList<>();
+            QueryWrapper<Image> imageQueryWrapper=new QueryWrapper<>();
+            imageQueryWrapper.in("id",imageId);
+            List<Image> imageList=imageMapper.selectList(imageQueryWrapper);
+            for(Image image:imageList){
+                moreImages.add(image.getImageUrl());
+            }
         }
         //获取商品的规则
         QueryWrapper<ProductRule> productRuleQueryWrapper=new QueryWrapper<>();
