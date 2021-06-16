@@ -5,6 +5,7 @@ import com.example.demo.ao.PayOrderAo;
 import com.example.demo.service.OrderService;
 import com.example.demo.service.TokenService;
 import com.example.demo.vo.BaseVo;
+import com.example.demo.vo.OrderList4ShopkeeperVo;
 import com.example.demo.vo.OrderListVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -77,6 +78,18 @@ public class OrderController {
     @ResponseBody
     public BaseVo completeOrder(@RequestBody int id){
         return orderService.completeOrder(id);
+    }
+
+    /**
+     * @param id
+     * @return
+     */
+    /**商家查找所有购买自己商品的订单*/
+    @PostMapping("/getOrder4Shopkeeper")
+    @ResponseBody
+    public OrderList4ShopkeeperVo getOrder4Shopkeeper(@RequestBody int id){
+        //int id=Integer.parseInt(tokenService.getUseridFromToken(token));
+        return orderService.getOrder4Shopkeeper(id);
     }
 
     /**

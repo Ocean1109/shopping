@@ -3,6 +3,7 @@ package com.example.demo.service;
 import com.example.demo.ao.OrderAo;
 import com.example.demo.ao.PayOrderAo;
 import com.example.demo.vo.BaseVo;
+import com.example.demo.vo.OrderList4ShopkeeperVo;
 import com.example.demo.vo.OrderListVo;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -41,6 +42,13 @@ public interface OrderService {
      */
     /**确认收货*/
     public BaseVo completeOrder(int id);
+
+    /**
+     * @param id
+     * @return
+     */
+    /**商家查找所有购买自己商品的订单*/
+    public OrderList4ShopkeeperVo getOrder4Shopkeeper(int id);
 
     /**
      * @param userId

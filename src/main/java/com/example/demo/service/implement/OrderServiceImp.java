@@ -82,10 +82,16 @@ public class OrderServiceImp implements OrderService {
         ShoppingOrder queryOrder = shoppingOrderMapper.selectOne(shoppingOrderQueryWrapper);
 
         OrderProduct newOrder;
-
+        QueryWrapper<Product> productQueryWrapper1;
+        Product queryProducts;
 
         for(int i = 0; i < orderAo.getProductIds().size(); i++){
-            newOrder = new OrderProduct(queryOrder.getId(), orderAo.getProductIds().get(i), false, orderAo.getShopkeeperId(), false);
+
+            productQueryWrapper1 = Wrappers.query();
+            productQueryWrapper1.eq("publish_user_id", orderAo.getProductIds().get(i));
+            queryProducts = productMapper.selectOne(productQueryWrapper1);
+
+            newOrder = new OrderProduct(queryOrder.getId(), orderAo.getProductIds().get(i), false, queryProducts.getPublishUserId(), false);
             orderProductMapper.insert(newOrder);
         }
 
@@ -148,25 +154,35 @@ public class OrderServiceImp implements OrderService {
     public BaseVo sendingProduct(int id){
         BaseVo result = new BaseVo();
 
-        
+        QueryWrapper<OrderProduct> orderProductQueryWrapper = Wrappers.query();
+        orderProductQueryWrapper.eq("id", id);
+        OrderProduct queryOrderProduct = orderProductMapper.selectOne(orderProductQueryWrapper);
+
+        OrderProduct orderProduct = new OrderProduct(
+                queryOrderProduct.getId(),
+                queryOrderProduct.getOrderId(),
+                queryOrderProduct.getProductId(),
+                true,
+                queryOrderProduct.getShopkeeperId(),
+                queryOrderProduct.isFinished()
+        );
 
         QueryWrapper<ShoppingOrder> shoppingOrderQueryWrapper = Wrappers.query();
-        shoppingOrderQueryWrapper.eq("id", id);
+        shoppingOrderQueryWrapper.eq("id", queryOrderProduct.getOrderId());
         ShoppingOrder queryOrder = shoppingOrderMapper.selectOne(shoppingOrderQueryWrapper);
 
-        if(queryOrder == null){
-            result.setCode(1);
-            result.setMessage("没有此订单");
+        orderProductQueryWrapper = Wrappers.query();
+        orderProductQueryWrapper.eq("order_id", queryOrder.getId());
+        List<OrderProduct> orderProductList = orderProductMapper.selectList(orderProductQueryWrapper);
+
+        boolean allSent = true;
+        for(int i = 0; i < orderProductList.size(); i++){
+            if(!orderProductList.get(i).isSentProduct()){
+                allSent = false;
+            }
         }
-        else if(queryOrder.getTradeStatus() == 2){
-            result.setCode(1);
-            result.setMessage("订单已取消");
-        }
-        else if(queryOrder.getTradeStatus() == 3){
-            result.setCode(1);
-            result.setMessage("订单已结算");
-        }
-        else {
+
+        if(allSent){
             ShoppingOrder newOrder = new ShoppingOrder(
                     queryOrder.getId(),
                     queryOrder.getBuyingUserId(),
@@ -179,10 +195,16 @@ public class OrderServiceImp implements OrderService {
                     queryOrder.getCreateTime()
             );
 
+
             shoppingOrderMapper.update(newOrder, shoppingOrderQueryWrapper);
+
 
             result.setCode(0);
             result.setMessage("已发货");
+        }
+        else {
+            result.setCode(1);
+            result.setMessage("未发货");
         }
 
         return result;
@@ -326,6 +348,11 @@ public class OrderServiceImp implements OrderService {
         return result;
     }
 
+    /**
+     * @param id
+     * @return
+     */
+    /**商家查找所有购买自己商品的订单*/
     public OrderList4ShopkeeperVo getOrder4Shopkeeper(int id){
         OrderList4ShopkeeperVo result = new OrderList4ShopkeeperVo();
 
@@ -390,7 +417,7 @@ public class OrderServiceImp implements OrderService {
      * @param userId
      * @return
      */
-    /**查找某用户所有订单，仅包括未取消和为完成的订单*/
+    /**查找某用户所有订单，仅包括未取消的订单*/
     public OrderListVo getOrder(int userId){
         OrderListVo result = new OrderListVo();
 
@@ -407,7 +434,7 @@ public class OrderServiceImp implements OrderService {
             List<ExtendShoppingOrder> extendShoppingOrders = new ArrayList<ExtendShoppingOrder>();
             ExtendShoppingOrder extendShoppingOrder;
             for(int i = 0; i < queryOrder.size(); i++){
-                if(queryOrder.get(i).getTradeStatus() == 2 || queryOrder.get(i).getTradeStatus() == 3){
+                if(queryOrder.get(i).getTradeStatus() == 2){
                     queryOrder.remove(i);
                     i--;
                 }
