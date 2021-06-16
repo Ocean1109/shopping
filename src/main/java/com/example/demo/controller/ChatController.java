@@ -26,6 +26,7 @@ public class ChatController {
      * @param request
      * @return
      */
+    /**列出所有聊天列表*/
     @GetMapping("/chat")
     @ResponseBody
     public List<Chat> showAllChat(HttpServletRequest request){
@@ -38,6 +39,7 @@ public class ChatController {
      * @param chatId
      * @return
      */
+    /**列出单个具体的聊天框*/
     @GetMapping("/chat/{chatId}")
     @ResponseBody
     public List<ChatDetailVo> showDetail(@PathVariable("chatId")int chatId){
