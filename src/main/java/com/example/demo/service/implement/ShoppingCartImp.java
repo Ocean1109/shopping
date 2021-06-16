@@ -47,38 +47,38 @@ public class ShoppingCartImp implements ShoppingCartService {
     }
 
     /**添加商品*/
-    public ProductCartVo addProduct(ShoppingCartAo product){
+    public ProductCartVo addProduct(ShoppingCartAo shoppingCartAo){
         ProductCartVo result = new ProductCartVo();
         QueryWrapper<ShoppingCart> shoppingCartQueryWrapper = Wrappers.query();
-        shoppingCartQueryWrapper.eq("product_id", Integer.parseInt(tokenService.getUseridFromToken(product.getToken())));
+        shoppingCartQueryWrapper.eq("user_id", Integer.parseInt(tokenService.getUseridFromToken(shoppingCartAo.getToken()))).eq("product_id", shoppingCartAo.getProductId());
         ShoppingCart queryCart = shoppingCartMapper.selectOne(shoppingCartQueryWrapper);
 
         if(queryCart!=null){//购物车某个商品数量增加
-            ShoppingCart newCart = new ShoppingCart(queryCart.getId(), queryCart.getUserId(), queryCart.getProductId(), queryCart.getProductNumber() + product.getNum(), 0);
+            ShoppingCart newCart = new ShoppingCart(queryCart.getId(), queryCart.getUserId(), queryCart.getProductId(), queryCart.getProductNumber() + shoppingCartAo.getNum(), 0);
             shoppingCartMapper.updateById(newCart);
 
             result.setSuccess(true);
             result.setMessage("已添加至购物车");
-            result = addShoppingCartList(product, result);
+            result = addShoppingCartList(shoppingCartAo, result);
         }
         else{//添加新商品
             QueryWrapper<Product> productQueryWrapper = Wrappers.query();
-            productQueryWrapper.eq("id", product.getProductId());
+            productQueryWrapper.eq("id", shoppingCartAo.getProductId());
             Product queryProduct = productMapper.selectOne(productQueryWrapper);
 
             if(queryProduct==null){
                 result.setSuccess(false);
                 result.setMessage("没有该商品");
-                result = addShoppingCartList(product, result);
+                result = addShoppingCartList(shoppingCartAo, result);
                 return result;
             }
 
-            ShoppingCart newCart = new ShoppingCart(Integer.parseInt(tokenService.getUseridFromToken(product.getToken())), queryProduct.getId(), product.getNum());
+            ShoppingCart newCart = new ShoppingCart(Integer.parseInt(tokenService.getUseridFromToken(shoppingCartAo.getToken())), queryProduct.getId(), shoppingCartAo.getNum());
             shoppingCartMapper.insert(newCart);
 
             result.setSuccess(true);
             result.setMessage("已增加商品");
-            result = addShoppingCartList(product, result);
+            result = addShoppingCartList(shoppingCartAo, result);
         }
 
 
@@ -86,13 +86,13 @@ public class ShoppingCartImp implements ShoppingCartService {
     }
 
     /**删除商品*/
-    public ProductCartVo delProduct(ShoppingCartAo product){
+    public ProductCartVo delProduct(ShoppingCartAo shoppingCartAo){
         ProductCartVo result = new ProductCartVo();
         QueryWrapper<ShoppingCart> shoppingCartQueryWrapper = Wrappers.query();
-        shoppingCartQueryWrapper.eq("product_id", product.getProductId());
+        shoppingCartQueryWrapper.eq("user_id", Integer.parseInt(tokenService.getUseridFromToken(shoppingCartAo.getToken()))).eq("product_id", shoppingCartAo.getProductId());
         ShoppingCart queryCart = shoppingCartMapper.selectOne(shoppingCartQueryWrapper);
 
-        int num = product.getNum();
+        int num = shoppingCartAo.getNum();
 
         if(queryCart==null){//没有该商品
             result.setSuccess(false);
@@ -104,13 +104,13 @@ public class ShoppingCartImp implements ShoppingCartService {
             shoppingCartMapper.delete(shoppingCartQueryWrapper);
         }
         else{
-            ShoppingCart newCart = new ShoppingCart(queryCart.getId(), queryCart.getUserId(), queryCart.getProductId(), queryCart.getProductNumber() - product.getNum(), 0);
+            ShoppingCart newCart = new ShoppingCart(queryCart.getId(), queryCart.getUserId(), queryCart.getProductId(), queryCart.getProductNumber() - shoppingCartAo.getNum(), 0);
             shoppingCartMapper.updateById(newCart);
             result.setSuccess(true);
             result.setMessage("删除成功");
         }
 
-        result = addShoppingCartList(product, result);
+        result = addShoppingCartList(shoppingCartAo, result);
         return result;
     }
 

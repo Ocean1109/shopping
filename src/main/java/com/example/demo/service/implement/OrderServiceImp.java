@@ -142,6 +142,52 @@ public class OrderServiceImp implements OrderService {
      * @param id
      * @return
      */
+    /**发货*/
+    public BaseVo sendingProduct(int id){
+        BaseVo result = new BaseVo();
+
+        QueryWrapper<ShoppingOrder> shoppingOrderQueryWrapper = Wrappers.query();
+        shoppingOrderQueryWrapper.eq("id", id);
+        ShoppingOrder queryOrder = shoppingOrderMapper.selectOne(shoppingOrderQueryWrapper);
+
+        if(queryOrder == null){
+            result.setCode(1);
+            result.setMessage("没有此订单");
+        }
+        else if(queryOrder.getTradeStatus() == 2){
+            result.setCode(1);
+            result.setMessage("订单已取消");
+        }
+        else if(queryOrder.getTradeStatus() == 3){
+            result.setCode(1);
+            result.setMessage("订单已结算");
+        }
+        else {
+            ShoppingOrder newOrder = new ShoppingOrder(
+                    queryOrder.getId(),
+                    queryOrder.getBuyingUserId(),
+                    4,
+                    queryOrder.getPayStatus(),
+                    queryOrder.getOrderAmount(),
+                    queryOrder.getPayAmount(),
+                    queryOrder.getPayTime(),
+                    queryOrder.getCompletionTime(),
+                    queryOrder.getCreateTime()
+            );
+
+            shoppingOrderMapper.update(newOrder, shoppingOrderQueryWrapper);
+
+            result.setCode(0);
+            result.setMessage("已发货");
+        }
+
+        return result;
+    }
+
+    /**
+     * @param id
+     * @return
+     */
     /**取消订单*/
     public BaseVo cancelOrder(int id){
         BaseVo result = new BaseVo();
@@ -198,6 +244,14 @@ public class OrderServiceImp implements OrderService {
         if(queryOrder == null){
             result.setCode(1);
             result.setMessage("没有此订单");
+        }
+        else if(queryOrder.getTradeStatus() == 2){
+            result.setCode(1);
+            result.setMessage("订单已取消");
+        }
+        else if(queryOrder.getTradeStatus() == 3){
+            result.setCode(1);
+            result.setMessage("订单已结算");
         }
         else {
             String current = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());

@@ -25,6 +25,13 @@ public interface OrderService {
      * @param id
      * @return
      */
+    /**发货*/
+    public BaseVo sendingProduct(int id);
+
+    /**
+     * @param id
+     * @return
+     */
     /**取消订单*/
     public BaseVo cancelOrder(int id);
 
