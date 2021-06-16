@@ -76,7 +76,7 @@ public class OrderController {
     /**确认收货*/
     @PostMapping("/completeOrder")
     @ResponseBody
-    public BaseVo completeOrder(@RequestBody int id){
+    public BaseVo completeOrder(@RequestParam int id){
         return orderService.completeOrder(id);
     }
 
