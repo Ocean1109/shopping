@@ -4,16 +4,15 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.example.demo.ao.OrderAo;
 import com.example.demo.ao.PayOrderAo;
-import com.example.demo.entity.ExtendShoppingOrder;
-import com.example.demo.entity.OrderProduct;
-import com.example.demo.entity.Product;
-import com.example.demo.entity.ShoppingOrder;
+import com.example.demo.entity.*;
 import com.example.demo.mapper.OrderProductMapper;
 import com.example.demo.mapper.ProductMapper;
 import com.example.demo.mapper.ShoppingOrderMapper;
+import com.example.demo.mapper.ShoppingUserMapper;
 import com.example.demo.service.OrderService;
 import com.example.demo.service.TokenService;
 import com.example.demo.vo.BaseVo;
+import com.example.demo.vo.OrderList4ShopkeeperVo;
 import com.example.demo.vo.OrderListVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -35,6 +34,9 @@ public class OrderServiceImp implements OrderService {
 
     @Autowired
     private ProductMapper productMapper;
+
+    @Autowired
+    private ShoppingUserMapper shoppingUserMapper;
 
     @Autowired
     private TokenService tokenService;
@@ -83,7 +85,7 @@ public class OrderServiceImp implements OrderService {
 
 
         for(int i = 0; i < orderAo.getProductIds().size(); i++){
-            newOrder = new OrderProduct(queryOrder.getId(), orderAo.getProductIds().get(i));
+            newOrder = new OrderProduct(queryOrder.getId(), orderAo.getProductIds().get(i), false, orderAo.getShopkeeperId(), false);
             orderProductMapper.insert(newOrder);
         }
 
@@ -145,6 +147,8 @@ public class OrderServiceImp implements OrderService {
     /**发货*/
     public BaseVo sendingProduct(int id){
         BaseVo result = new BaseVo();
+
+        
 
         QueryWrapper<ShoppingOrder> shoppingOrderQueryWrapper = Wrappers.query();
         shoppingOrderQueryWrapper.eq("id", id);
@@ -222,6 +226,28 @@ public class OrderServiceImp implements OrderService {
 
             shoppingOrderMapper.update(newOrder, shoppingOrderQueryWrapper);
 
+            QueryWrapper<OrderProduct> orderProductQueryWrapper = Wrappers.query();
+            orderProductQueryWrapper.eq("order_id", queryOrder.getId());
+            List<OrderProduct> orderProductList = orderProductMapper.selectList(orderProductQueryWrapper);
+
+            OrderProduct newOrderProduct;
+            QueryWrapper<OrderProduct> orderProductQueryWrapper1;
+
+            for(int i = 0; i < orderProductList.size(); i++){
+                newOrderProduct = new OrderProduct(
+                        orderProductList.get(i).getOrderId(),
+                        orderProductList.get(i).getProductId(),
+                        orderProductList.get(i).isSentProduct(),
+                        orderProductList.get(i).getShopkeeperId(),
+                        true
+                );
+
+                orderProductQueryWrapper1 = Wrappers.query();
+                orderProductQueryWrapper1.eq("id", orderProductList.get(i).getOrderId());
+                orderProductMapper.update(newOrderProduct, orderProductQueryWrapper1);
+
+            }
+
             result.setCode(0);
             result.setMessage("取消成功");
         }
@@ -271,8 +297,90 @@ public class OrderServiceImp implements OrderService {
 
             shoppingOrderMapper.update(newOrder, shoppingOrderQueryWrapper);
 
+            QueryWrapper<OrderProduct> orderProductQueryWrapper = Wrappers.query();
+            orderProductQueryWrapper.eq("order_id", queryOrder.getId());
+            List<OrderProduct> orderProductList = orderProductMapper.selectList(orderProductQueryWrapper);
+
+            OrderProduct newOrderProduct;
+            QueryWrapper<OrderProduct> orderProductQueryWrapper1;
+
+            for(int i = 0; i < orderProductList.size(); i++){
+                newOrderProduct = new OrderProduct(
+                        orderProductList.get(i).getOrderId(),
+                        orderProductList.get(i).getProductId(),
+                        orderProductList.get(i).isSentProduct(),
+                        orderProductList.get(i).getShopkeeperId(),
+                        true
+                );
+
+                orderProductQueryWrapper1 = Wrappers.query();
+                orderProductQueryWrapper1.eq("id", orderProductList.get(i).getOrderId());
+                orderProductMapper.update(newOrderProduct, orderProductQueryWrapper1);
+
+            }
+
             result.setCode(0);
             result.setMessage("确认收货");
+        }
+
+        return result;
+    }
+
+    public OrderList4ShopkeeperVo getOrder4Shopkeeper(int id){
+        OrderList4ShopkeeperVo result = new OrderList4ShopkeeperVo();
+
+        QueryWrapper<OrderProduct> orderProductQueryWrapper = Wrappers.query();
+        orderProductQueryWrapper.eq("shopkeeper_id", id).eq("is_finished", false);
+        List<OrderProduct> queryOrderProduct = orderProductMapper.selectList(orderProductQueryWrapper);
+
+        if(queryOrderProduct == null){
+            result.setCode(1);
+            result.setMessage("没有此订单");
+        }
+        else {
+
+            List<Order4Shopkeeper> order4Shopkeepers = new ArrayList<>();
+
+            QueryWrapper<Product> productQueryWrapper;
+            Product queryProduct;
+            QueryWrapper<ShoppingOrder> shoppingOrderQueryWrapper;
+            ShoppingOrder queryOrder;
+            QueryWrapper<ShoppingUser> shoppingUserQueryWrapper;
+            ShoppingUser queryUser;
+
+            for(int i = 0; i < queryOrderProduct.size(); i++){
+
+                productQueryWrapper = Wrappers.query();
+                productQueryWrapper.eq("id", queryOrderProduct.get(i).getProductId());
+                queryProduct = productMapper.selectOne(productQueryWrapper);
+
+                shoppingOrderQueryWrapper = Wrappers.query();
+                shoppingOrderQueryWrapper.eq("id", queryOrderProduct.get(i).getOrderId());
+                queryOrder = shoppingOrderMapper.selectOne(shoppingOrderQueryWrapper);
+
+                shoppingUserQueryWrapper = Wrappers.query();
+                shoppingUserQueryWrapper.eq("id", queryOrder.getBuyingUserId());
+                queryUser = shoppingUserMapper.selectOne(shoppingUserQueryWrapper);
+
+                Order4Shopkeeper newOrder = new Order4Shopkeeper(
+                        queryOrderProduct.get(i).getProductId(),
+                        queryProduct.getProductImage(),
+                        queryProduct.getProductDesc(),
+                        queryProduct.getProductPrice(),
+                        queryUser.getId(),
+                        queryUser.getAddress(),
+                        queryUser.getUserName(),
+                        queryUser.getTel()
+                );
+
+                order4Shopkeepers.add(newOrder);
+
+            }
+
+            result.setCode(0);
+            result.setMessage("查询成功");
+            result.setOrder4Shopkeepers(order4Shopkeepers);
+
         }
 
         return result;
