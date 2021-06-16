@@ -51,6 +51,8 @@ public class OrderServiceImp implements OrderService {
 
         double orderAmount = 0d;
 
+        int userId = Integer.parseInt(tokenService.getUseridFromToken(orderAo.getToken()));
+
         QueryWrapper<Product> productQueryWrapper;
 
         for(int i = 0; i < orderAo.getProductIds().size(); i++){
@@ -65,7 +67,7 @@ public class OrderServiceImp implements OrderService {
         Timestamp time = Timestamp.valueOf(current);
 
         ShoppingOrder newShoppingOrder = new ShoppingOrder(
-                Integer.parseInt(tokenService.getUseridFromToken(orderAo.getToken())),
+                userId,
                 1,
                 1,
                 orderAmount,
@@ -88,7 +90,7 @@ public class OrderServiceImp implements OrderService {
         for(int i = 0; i < orderAo.getProductIds().size(); i++){
 
             productQueryWrapper1 = Wrappers.query();
-            productQueryWrapper1.eq("publish_user_id", orderAo.getProductIds().get(i));
+            productQueryWrapper1.eq("id", orderAo.getProductIds().get(i));
             queryProducts = productMapper.selectOne(productQueryWrapper1);
 
             newOrder = new OrderProduct(queryOrder.getId(), orderAo.getProductIds().get(i), false, queryProducts.getPublishUserId(), false);
@@ -110,7 +112,7 @@ public class OrderServiceImp implements OrderService {
         BaseVo result = new BaseVo();
 
         QueryWrapper<ShoppingOrder> shoppingOrderQueryWrapper = Wrappers.query();
-        shoppingOrderQueryWrapper.eq("id", Integer.parseInt(tokenService.getUseridFromToken(payOrderAo.getToken())));
+        shoppingOrderQueryWrapper.eq("id", payOrderAo.getId());
         ShoppingOrder queryOrder = shoppingOrderMapper.selectOne(shoppingOrderQueryWrapper);
 
         if(queryOrder == null){
@@ -166,6 +168,8 @@ public class OrderServiceImp implements OrderService {
                 queryOrderProduct.getShopkeeperId(),
                 queryOrderProduct.isFinished()
         );
+
+        orderProductMapper.update(orderProduct, orderProductQueryWrapper);
 
         QueryWrapper<ShoppingOrder> shoppingOrderQueryWrapper = Wrappers.query();
         shoppingOrderQueryWrapper.eq("id", queryOrderProduct.getOrderId());
@@ -328,6 +332,7 @@ public class OrderServiceImp implements OrderService {
 
             for(int i = 0; i < orderProductList.size(); i++){
                 newOrderProduct = new OrderProduct(
+                        orderProductList.get(i).getId(),
                         orderProductList.get(i).getOrderId(),
                         orderProductList.get(i).getProductId(),
                         orderProductList.get(i).isSentProduct(),
@@ -336,7 +341,7 @@ public class OrderServiceImp implements OrderService {
                 );
 
                 orderProductQueryWrapper1 = Wrappers.query();
-                orderProductQueryWrapper1.eq("id", orderProductList.get(i).getOrderId());
+                orderProductQueryWrapper1.eq("id", orderProductList.get(i).getId());
                 orderProductMapper.update(newOrderProduct, orderProductQueryWrapper1);
 
             }
@@ -357,7 +362,7 @@ public class OrderServiceImp implements OrderService {
         OrderList4ShopkeeperVo result = new OrderList4ShopkeeperVo();
 
         QueryWrapper<OrderProduct> orderProductQueryWrapper = Wrappers.query();
-        orderProductQueryWrapper.eq("shopkeeper_id", id).eq("is_finished", false);
+        orderProductQueryWrapper.eq("shopkeeper_id", id);
         List<OrderProduct> queryOrderProduct = orderProductMapper.selectList(orderProductQueryWrapper);
 
         if(queryOrderProduct == null){
