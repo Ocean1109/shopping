@@ -3,12 +3,14 @@ package com.example.demo.controller;
 import com.example.demo.ao.OrderAo;
 import com.example.demo.ao.PayOrderAo;
 import com.example.demo.service.OrderService;
+import com.example.demo.service.TokenService;
 import com.example.demo.vo.BaseVo;
 import com.example.demo.vo.OrderListVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
@@ -19,6 +21,8 @@ public class OrderController {
 
     @Autowired
     OrderService orderService;
+    @Autowired
+    TokenService tokenService;
 
     /**
      * @param orderAo
@@ -82,7 +86,8 @@ public class OrderController {
     /**查找某用户所有订单，仅包括未取消和为完成的订单*/
     @PostMapping("/getOrders")
     @ResponseBody
-    public OrderListVo getOrder(@RequestBody int userId){
+    public OrderListVo getOrder(@RequestParam("token") String token){
+        int userId=Integer.parseInt(tokenService.getUseridFromToken(token));
         return orderService.getOrder(userId);
     }
 
