@@ -87,8 +87,8 @@ public class OrderController {
     /**商家查找所有购买自己商品的订单*/
     @PostMapping("/getOrder4Shopkeeper")
     @ResponseBody
-    public OrderList4ShopkeeperVo getOrder4Shopkeeper(@RequestBody int id){
-        //int id=Integer.parseInt(tokenService.getUseridFromToken(token));
+    public OrderList4ShopkeeperVo getOrder4Shopkeeper(@RequestParam("token") String token){
+        int id=Integer.parseInt(tokenService.getUseridFromToken(token));
         return orderService.getOrder4Shopkeeper(id);
     }
 
