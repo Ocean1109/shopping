@@ -98,13 +98,24 @@ public class ProductController {
     public ProductDetailVo showDetailProduct(@PathVariable("id")int id){
         return productService.showSingleProduct(id);
     }
+
     /**
      * @param productName
      */
+    /**搜索商品*/
     @PostMapping("/search")
     @ResponseBody
     public List<ProductVo> search(@RequestParam("productName")String productName){
         return productService.search(productName);
+    }
+
+    /**
+     * @param token
+     */
+    @PostMapping("/listBusinessman")
+    @ResponseBody
+    public List<ProductVo> listBusinessman(@RequestParam("token")String token){
+        return productService.listBusinessman(token);
     }
 
 }

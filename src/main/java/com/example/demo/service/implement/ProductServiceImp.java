@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.sound.sampled.Port;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -274,6 +275,19 @@ public class ProductServiceImp implements ProductService {
         List<Product> searchProducts=productMapper.selectList(productQueryWrapper);
         List<ProductVo> result=new ArrayList<>();
         for(Product product:searchProducts){
+            result.add(new ProductVo(product.getId(),product.getProductDesc(),product.getProductImage(),product.getProductPrice()));
+        }
+        return result;
+    }
+
+    @Override
+    public List<ProductVo> listBusinessman(String token){
+        int userID=Integer.parseInt(tokenService.getUseridFromToken(token));
+        QueryWrapper<Product> productQueryWrapper=new QueryWrapper<>();
+        productQueryWrapper.eq("publish_user_id",userID);
+        List<Product> products=productMapper.selectList(productQueryWrapper);
+        List<ProductVo> result=new ArrayList<>();
+        for(Product product:products){
             result.add(new ProductVo(product.getId(),product.getProductDesc(),product.getProductImage(),product.getProductPrice()));
         }
         return result;

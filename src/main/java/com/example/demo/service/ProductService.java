@@ -34,5 +34,12 @@ public interface ProductService {
     /**
      * @param productName
      */
+    /**搜索商品*/
     List<ProductVo> search(String productName);
+    /**
+     * @param token
+     */
+    /**列出用户发布的商品*/
+    List<ProductVo> listBusinessman(String token);
+
 }
