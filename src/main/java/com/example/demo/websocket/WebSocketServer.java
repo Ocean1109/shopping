@@ -108,8 +108,8 @@ public class WebSocketServer {
      */
     @OnMessage
     public void onMessage(String message, Session session) {
-//        int userId = Integer.parseInt(tokenService.getUseridFromToken(topic));
-        logger.info("用户:" + topic + ",信息:" + message);
+        int userId = Integer.parseInt(tokenService.getUseridFromToken(topic));
+        logger.info("用户:" + userId + ",信息:" + message);
         //可以群发消息
         //消息保存到数据库、redis
         if (StringUtils.isNotBlank(message)) {
@@ -118,9 +118,9 @@ public class WebSocketServer {
                 JSONObject jsonObject = JSON.parseObject(message);
                 //存到chat_detail数据库中
                 ChatService chatService=applicationContext.getBean(ChatService.class);
-                chatService.insertChat(Integer.parseInt(this.chatId),Integer.parseInt(topic), jsonObject.getString("content"));
+                chatService.insertChat(Integer.parseInt(this.chatId),userId, jsonObject.getString("content"));
                 //追加发送人(防止串改)
-                jsonObject.put("from_topic", topic);
+                jsonObject.put("from_topic", userId);
                 String to_topic = jsonObject.getString("to_topic");
                 //传送给对应toUserId用户的websocket
                 if (StringUtils.isNotBlank(to_topic) && webSocketMap.containsKey(to_topic)) {
