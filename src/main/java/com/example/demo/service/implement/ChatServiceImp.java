@@ -9,6 +9,7 @@ import com.example.demo.mapper.ChatMapper;
 import com.example.demo.mapper.ShoppingUserMapper;
 import com.example.demo.service.ChatService;
 import com.example.demo.vo.ChatDetailVo;
+import com.example.demo.vo.ChatVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -32,11 +33,20 @@ public class ChatServiceImp implements ChatService {
      * @return
      */
     @Override
-    public List<Chat> showAllChat(int userId){
-        List<Chat> result=new ArrayList<>();
+    public List<ChatVo> showAllChat(int userId){
+        List<ChatVo> result=new ArrayList<>();
         QueryWrapper<Chat> chatQueryWrapper=new QueryWrapper<>();
-        chatQueryWrapper.eq("user_id",userId).or(wrapper->wrapper.eq("another_user_id",userId));
-        result=chatMapper.selectList(chatQueryWrapper);
+        chatQueryWrapper.eq("user_id",userId);
+        List<Chat> userChats=chatMapper.selectList(chatQueryWrapper);
+        for(Chat userChat:userChats){
+            result.add(new ChatVo(userChat.getId(),userChat.getUserId(),userChat.getAnotherUserId(),userChat.getProductId()));
+        }
+        QueryWrapper<Chat> anotherChatQueryWrapper=new QueryWrapper<>();
+        anotherChatQueryWrapper.eq("another_user_id",userId);
+        List<Chat> anotherUserChats=chatMapper.selectList(anotherChatQueryWrapper);
+        for(Chat anotherUserChat:anotherUserChats){
+            result.add(new ChatVo(anotherUserChat.getId(),anotherUserChat.getAnotherUserId(),anotherUserChat.getUserId(),anotherUserChat.getProductId()));
+        }
         return result;
     }
 
