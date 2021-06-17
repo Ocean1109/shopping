@@ -8,10 +8,7 @@ import com.example.demo.vo.ChatDetailVo;
 import com.example.demo.vo.ChatVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -34,6 +31,13 @@ public class ChatController {
         String token=request.getHeader(tokenService.getHeader());
         int userId=Integer.parseInt(tokenService.getUseridFromToken(token));
         return chatService.showAllChat(userId);
+    }
+
+    @PostMapping("/newChat")
+    @ResponseBody
+    public int newChat(@RequestParam("businessId")int businessId,@RequestParam("token")String token,@RequestParam("productId")int productId){
+        int userId=Integer.parseInt(tokenService.getUseridFromToken(token));
+        return chatService.newChat(userId,businessId,productId);
     }
 
     /**

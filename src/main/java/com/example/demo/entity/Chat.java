@@ -13,4 +13,10 @@ public class Chat {
     private int userId;
     private int anotherUserId;
     private int productId;
+
+    public Chat(int userId, int anotherUserId, int productId) {
+        this.userId = userId;
+        this.anotherUserId = anotherUserId;
+        this.productId = productId;
+    }
 }

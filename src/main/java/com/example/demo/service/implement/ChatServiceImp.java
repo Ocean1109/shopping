@@ -80,4 +80,18 @@ public class ChatServiceImp implements ChatService {
         ChatDetail chatDetail=new ChatDetail(chatId,userId,shoppingUser.getUserName(),content,time);
         chatDetailMapper.insert(chatDetail);
     }
+
+    @Override
+    public int newChat(int userId,int businessId,int productId){
+        QueryWrapper<Chat> chatQueryWrapper=new QueryWrapper<>();
+        chatQueryWrapper.eq("user_id",businessId).or(wrapper->wrapper.eq("another_user_id",businessId));
+        Chat chat=chatMapper.selectOne(chatQueryWrapper);
+        if(chat==null){
+            Chat newAChat=new Chat(userId,businessId,productId);
+            chatMapper.insert(newAChat);
+            return newAChat.getId();
+        }else{
+            return chat.getId();
+        }
+    }
 }

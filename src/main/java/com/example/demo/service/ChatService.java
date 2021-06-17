@@ -26,4 +26,6 @@ public interface ChatService {
      * @param content
      */
     void insertChat(int chatId,int userId,String content);
+
+    int newChat(int userId,int businessId,int productId);
 }
