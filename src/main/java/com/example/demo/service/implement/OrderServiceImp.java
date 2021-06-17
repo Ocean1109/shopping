@@ -394,21 +394,23 @@ public class OrderServiceImp implements OrderService {
                 shoppingUserQueryWrapper.eq("id", queryOrder.getBuyingUserId());
                 queryUser = shoppingUserMapper.selectOne(shoppingUserQueryWrapper);
 
-                Order4Shopkeeper newOrder = new Order4Shopkeeper(
-                        queryOrder.getId(),
-                        queryOrderProduct.get(i).getProductId(),
-                        queryProduct.getProductImage(),
-                        queryProduct.getProductDesc(),
-                        queryProduct.getProductPrice(),
-                        queryUser.getId(),
-                        queryUser.getAddress(),
-                        queryUser.getUserName(),
-                        queryUser.getTel(),
-                        queryOrder.getTradeStatus(),
-                        queryOrderProduct.get(i).getId()
-                );
+                if(queryProduct != null && queryOrder != null && queryUser != null){
+                    Order4Shopkeeper newOrder = new Order4Shopkeeper(
+                            queryOrder.getId(),
+                            queryOrderProduct.get(i).getProductId(),
+                            queryProduct.getProductImage(),
+                            queryProduct.getProductDesc(),
+                            queryProduct.getProductPrice(),
+                            queryUser.getId(),
+                            queryUser.getAddress(),
+                            queryUser.getUserName(),
+                            queryUser.getTel(),
+                            queryOrder.getTradeStatus(),
+                            queryOrderProduct.get(i).getId()
+                    );
 
-                order4Shopkeepers.add(newOrder);
+                    order4Shopkeepers.add(newOrder);
+                }
 
             }
 
