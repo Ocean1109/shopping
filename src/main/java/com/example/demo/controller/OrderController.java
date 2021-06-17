@@ -54,7 +54,7 @@ public class OrderController {
     /**发货*/
     @PostMapping("/sendingProduct")
     @ResponseBody
-    public BaseVo sendingProduct(@RequestBody int id){
+    public BaseVo sendingProduct(@RequestParam("id") int id){
         return orderService.sendingProduct(id);
     }
 
