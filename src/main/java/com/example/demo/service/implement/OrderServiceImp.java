@@ -395,6 +395,7 @@ public class OrderServiceImp implements OrderService {
                 queryUser = shoppingUserMapper.selectOne(shoppingUserQueryWrapper);
 
                 Order4Shopkeeper newOrder = new Order4Shopkeeper(
+                        queryOrder.getId(),
                         queryOrderProduct.get(i).getProductId(),
                         queryProduct.getProductImage(),
                         queryProduct.getProductDesc(),

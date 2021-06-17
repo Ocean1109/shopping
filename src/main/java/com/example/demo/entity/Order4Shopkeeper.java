@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Order4Shopkeeper {
+    private int id;
     private int productId;
     private String image;
     private String desc;
