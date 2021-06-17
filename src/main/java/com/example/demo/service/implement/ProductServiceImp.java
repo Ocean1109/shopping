@@ -265,6 +265,17 @@ public class ProductServiceImp implements ProductService {
             baseVo.setMessage(e.getMessage());
             return baseVo;
         }
+    }
 
+    @Override
+    public List<ProductVo> search(String productName){
+        QueryWrapper<Product> productQueryWrapper=new QueryWrapper<>();
+        productQueryWrapper.like("product_desc",productName);
+        List<Product> searchProducts=productMapper.selectList(productQueryWrapper);
+        List<ProductVo> result=new ArrayList<>();
+        for(Product product:searchProducts){
+            result.add(new ProductVo(product.getId(),product.getProductDesc(),product.getProductImage(),product.getProductPrice()));
+        }
+        return result;
     }
 }

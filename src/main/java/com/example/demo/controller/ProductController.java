@@ -92,11 +92,19 @@ public class ProductController {
     /***
      * @param id
      */
+    /**展示单个商品详细信息*/
     @GetMapping("/product/{id}")
     @ResponseBody
     public ProductDetailVo showDetailProduct(@PathVariable("id")int id){
         return productService.showSingleProduct(id);
     }
-
+    /**
+     * @param productName
+     */
+    @PostMapping("/search")
+    @ResponseBody
+    public List<ProductVo> search(@RequestParam("productName")String productName){
+        return productService.search(productName);
+    }
 
 }

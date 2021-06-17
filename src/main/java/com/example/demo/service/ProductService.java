@@ -31,4 +31,8 @@ public interface ProductService {
      * @return 是否成功删除*/
     /**删除一个商品*/
     BaseVo deleteProduct(int id);
+    /**
+     * @param productName
+     */
+    List<ProductVo> search(String productName);
 }
