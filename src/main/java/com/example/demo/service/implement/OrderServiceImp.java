@@ -404,7 +404,8 @@ public class OrderServiceImp implements OrderService {
                         queryUser.getAddress(),
                         queryUser.getUserName(),
                         queryUser.getTel(),
-                        queryOrder.getTradeStatus()
+                        queryOrder.getTradeStatus(),
+                        queryOrderProduct.get(i).getId()
                 );
 
                 order4Shopkeepers.add(newOrder);
