@@ -18,4 +18,5 @@ public class Order4Shopkeeper {
     private String name;
     private String tel;
     private int tradeStatus;
+    private int orderProductId;
 }
