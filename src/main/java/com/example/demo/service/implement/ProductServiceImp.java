@@ -134,6 +134,7 @@ public class ProductServiceImp implements ProductService {
             resultProductRule=Arrays.asList(splitProductRule);
         }
         //向最终返回的实体中添加消息
+        productDetailVo.setId(product.getId());
         productDetailVo.setProductDesc(product.getProductDesc());
         productDetailVo.setProductImage(product.getProductImage());
         productDetailVo.setMoreImages(moreImages);

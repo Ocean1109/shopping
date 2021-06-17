@@ -10,6 +10,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ProductDetailVo {
+    private int id;
     private String productDesc;//商品描述
     private String productImage;//商品照片
     private List<String> moreImages;//商品详细照片

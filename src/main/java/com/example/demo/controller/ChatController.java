@@ -33,6 +33,13 @@ public class ChatController {
         return chatService.showAllChat(userId);
     }
 
+    /**
+     *
+     * @param businessId
+     * @param token
+     * @param productId
+     * @return
+     */
     @PostMapping("/newChat")
     @ResponseBody
     public int newChat(@RequestParam("businessId")int businessId,@RequestParam("token")String token,@RequestParam("productId")int productId){

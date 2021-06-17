@@ -10,8 +10,7 @@ import java.sql.Timestamp;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ChatDetailVo {
-    private int userId;
+    private String userId;
     private String userName;
     private String content;
-    private Timestamp createTime;
 }

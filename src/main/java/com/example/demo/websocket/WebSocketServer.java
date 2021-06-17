@@ -26,11 +26,11 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * desc: WebSocket服务端
  */
-@ServerEndpoint("/send/{chatId}/{topic}")
+@ServerEndpoint("/send/{chatId}/{token}")
 @Component
 public class WebSocketServer {
-    @Autowired
-    TokenService tokenService;
+
+    private TokenService tokenService;
 
     static Logger logger = Logger.getLogger("WebSocketServer");
     /**
@@ -64,20 +64,18 @@ public class WebSocketServer {
      * 连接建立成功调用的方法
      */
     @OnOpen
-    public void onOpen(Session session, @PathParam("topic") String topic,@PathParam("chatId")String chatId) {
+    public void onOpen(Session session, @PathParam("token") String token,@PathParam("chatId")String chatId) {
         this.session = session;
-        this.topic = topic;
+        tokenService=applicationContext.getBean(TokenService.class);
+        this.topic = tokenService.getUseridFromToken(token);
         this.chatId=chatId;
         if (webSocketMap.containsKey(topic)) {
             webSocketMap.remove(topic);
-            webSocketMap.put(topic, this);
+            subOnlineCount();
             //加入set中
-        } else {
-            webSocketMap.put(topic, this);
-            //加入set中
-            addOnlineCount();
-            //在线数加1
         }
+        webSocketMap.put(topic, this);
+        addOnlineCount();
 
         logger.info("用户连接:" + topic + ",当前在线人数为:" + getOnlineCount());
         try {
@@ -108,8 +106,7 @@ public class WebSocketServer {
      */
     @OnMessage
     public void onMessage(String message, Session session) {
-        int userId = Integer.parseInt(tokenService.getUseridFromToken(topic));
-        logger.info("用户:" + userId + ",信息:" + message);
+        logger.info("用户:" + topic + ",信息:" + message);
         //可以群发消息
         //消息保存到数据库、redis
         if (StringUtils.isNotBlank(message)) {
@@ -118,9 +115,9 @@ public class WebSocketServer {
                 JSONObject jsonObject = JSON.parseObject(message);
                 //存到chat_detail数据库中
                 ChatService chatService=applicationContext.getBean(ChatService.class);
-                chatService.insertChat(Integer.parseInt(this.chatId),userId, jsonObject.getString("content"));
+                chatService.insertChat(Integer.parseInt(this.chatId),Integer.parseInt(topic), jsonObject.getString("content"));
                 //追加发送人(防止串改)
-                jsonObject.put("from_topic", userId);
+                jsonObject.put("from_topic", topic);
                 String to_topic = jsonObject.getString("to_topic");
                 //传送给对应toUserId用户的websocket
                 if (StringUtils.isNotBlank(to_topic) && webSocketMap.containsKey(to_topic)) {

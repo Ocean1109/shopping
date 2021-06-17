@@ -1,5 +1,6 @@
 package com.example.demo.service.implement;
 
+import com.aliyuncs.auth.SHA256withRSASigner;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.example.demo.entity.Chat;
 import com.example.demo.entity.ChatDetail;
@@ -39,13 +40,19 @@ public class ChatServiceImp implements ChatService {
         chatQueryWrapper.eq("user_id",userId);
         List<Chat> userChats=chatMapper.selectList(chatQueryWrapper);
         for(Chat userChat:userChats){
-            result.add(new ChatVo(userChat.getId(),userChat.getUserId(),userChat.getAnotherUserId(),userChat.getProductId()));
+            QueryWrapper<ShoppingUser> shoppingUserQueryWrapper=new QueryWrapper<>();
+            shoppingUserQueryWrapper.eq("id",userChat.getAnotherUserId());
+            ShoppingUser user=shoppingUserMapper.selectOne(shoppingUserQueryWrapper);
+            result.add(new ChatVo(userChat.getId(),userChat.getUserId(),userChat.getAnotherUserId(),user.getUserName(),userChat.getProductId()));
         }
         QueryWrapper<Chat> anotherChatQueryWrapper=new QueryWrapper<>();
         anotherChatQueryWrapper.eq("another_user_id",userId);
         List<Chat> anotherUserChats=chatMapper.selectList(anotherChatQueryWrapper);
         for(Chat anotherUserChat:anotherUserChats){
-            result.add(new ChatVo(anotherUserChat.getId(),anotherUserChat.getAnotherUserId(),anotherUserChat.getUserId(),anotherUserChat.getProductId()));
+            QueryWrapper<ShoppingUser> shoppingUserQueryWrapper=new QueryWrapper<>();
+            shoppingUserQueryWrapper.eq("id",anotherUserChat.getUserId());
+            ShoppingUser user=shoppingUserMapper.selectOne(shoppingUserQueryWrapper);
+            result.add(new ChatVo(anotherUserChat.getId(),anotherUserChat.getAnotherUserId(),anotherUserChat.getUserId(),user.getUserName(),anotherUserChat.getProductId()));
         }
         return result;
     }
@@ -61,7 +68,8 @@ public class ChatServiceImp implements ChatService {
         chatDetailQueryWrapper.eq("chat_id",chatId);
         List<ChatDetail> chatDetails=chatDetailMapper.selectList(chatDetailQueryWrapper);
         for(ChatDetail chatDetail:chatDetails){
-            result.add(new ChatDetailVo(chatDetail.getUserId(),chatDetail.getUserName(),chatDetail.getContent(),chatDetail.getCreateTime()));
+            ShoppingUser user=shoppingUserMapper.selectById(chatDetail.getUserId());
+            result.add(new ChatDetailVo(user.getToken(),chatDetail.getUserName(),chatDetail.getContent()));
         }
         return result;
     }
@@ -82,7 +90,10 @@ public class ChatServiceImp implements ChatService {
     }
 
     @Override
-    public int newChat(int userId,int businessId,int productId){
+    public int newChat(int businessId,int userId,int productId){
+        if(userId==businessId){
+            return -1;
+        }
         QueryWrapper<Chat> chatQueryWrapper=new QueryWrapper<>();
         chatQueryWrapper.eq("user_id",businessId).or(wrapper->wrapper.eq("another_user_id",businessId));
         Chat chat=chatMapper.selectOne(chatQueryWrapper);

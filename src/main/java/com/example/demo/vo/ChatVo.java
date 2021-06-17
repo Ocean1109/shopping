@@ -11,5 +11,6 @@ public class ChatVo {
     private int id;
     private int userId;
     private int anotherUserId;
+    private String anotherUserName;
     private int productId;
 }
