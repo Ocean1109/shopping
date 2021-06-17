@@ -35,7 +35,7 @@ public class ChatServiceImp implements ChatService {
     public List<Chat> showAllChat(int userId){
         List<Chat> result=new ArrayList<>();
         QueryWrapper<Chat> chatQueryWrapper=new QueryWrapper<>();
-        chatQueryWrapper.eq("user_id",userId);
+        chatQueryWrapper.eq("user_id",userId).or(wrapper->wrapper.eq("another_user_id",userId));
         result=chatMapper.selectList(chatQueryWrapper);
         return result;
     }
