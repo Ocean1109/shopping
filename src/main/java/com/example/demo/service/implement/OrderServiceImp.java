@@ -95,6 +95,24 @@ public class OrderServiceImp implements OrderService {
 
             newOrder = new OrderProduct(queryOrder.getId(), orderAo.getProductIds().get(i), false, queryProducts.getPublishUserId(), false);
             orderProductMapper.insert(newOrder);
+
+            Product newProduct = new Product(
+                    queryProducts.getId(),
+                    queryProducts.getProductDesc(),
+                    queryProducts.getProductImage(),
+                    queryProducts.getProductPrice(),
+                    queryProducts.getProductTypeId(),
+                    queryProducts.getBrandId(),
+                    queryProducts.getPublishUserId(),
+                    queryProducts.getProductAddress(),
+                    queryProducts.getCreateTime(),
+                    queryProducts.getUpdateTime(),
+                    queryProducts.getNumbers() - 1,
+                    queryProducts.getProductRuleId(),
+                    queryProducts.getProductRule()
+            );
+
+            productMapper.update(newProduct, productQueryWrapper1);
         }
 
         result.setCode(0);
