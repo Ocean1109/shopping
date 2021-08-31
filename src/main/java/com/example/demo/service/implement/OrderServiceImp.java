@@ -45,7 +45,7 @@ public class OrderServiceImp implements OrderService {
      * @param orderAo
      * @return
      */
-    /**当一个人买商品时，产生订单,需要每个人产生订单的间隔大于一秒*/
+    /**当一个人买商品时，产生订单*/
     public BaseVo generateOrder(OrderAo orderAo){
         BaseVo result = new BaseVo();
 
@@ -80,18 +80,25 @@ public class OrderServiceImp implements OrderService {
         shoppingOrderMapper.insert(newShoppingOrder);
 
         QueryWrapper<ShoppingOrder> shoppingOrderQueryWrapper = Wrappers.query();
-        shoppingOrderQueryWrapper.eq("buying_user_id", Integer.parseInt(tokenService.getUseridFromToken(orderAo.getToken()))).eq("create_time", time);
+        shoppingOrderQueryWrapper.eq("id", newShoppingOrder.getId());
         ShoppingOrder queryOrder = shoppingOrderMapper.selectOne(shoppingOrderQueryWrapper);
 
         OrderProduct newOrder;
         QueryWrapper<Product> productQueryWrapper1;
         Product queryProducts;
 
+        int refund = 0;
+
         for(int i = 0; i < orderAo.getProductIds().size(); i++){
 
             productQueryWrapper1 = Wrappers.query();
             productQueryWrapper1.eq("id", orderAo.getProductIds().get(i));
             queryProducts = productMapper.selectOne(productQueryWrapper1);
+
+            if(queryProducts.getNumbers() < orderAo.getNum().get(i)){
+                refund += orderAo.getNum().get(i) * queryProducts.getProductPrice();
+                result.setMessage(queryProducts.getProductDesc() + "库存不足，无法购买！");
+            }
 
             newOrder = new OrderProduct(queryOrder.getId(), orderAo.getProductIds().get(i), false, queryProducts.getPublishUserId(), false);
             orderProductMapper.insert(newOrder);
@@ -107,7 +114,7 @@ public class OrderServiceImp implements OrderService {
                     queryProducts.getProductAddress(),
                     queryProducts.getCreateTime(),
                     queryProducts.getUpdateTime(),
-                    queryProducts.getNumbers() - 1,
+                    queryProducts.getNumbers() - orderAo.getNum().get(i),
                     queryProducts.getProductRuleId(),
                     queryProducts.getProductRule()
             );
@@ -115,8 +122,12 @@ public class OrderServiceImp implements OrderService {
             productMapper.update(newProduct, productQueryWrapper1);
         }
 
+
+
         result.setCode(0);
-        result.setMessage("购买成功");
+        if(result.getMessage() == null){
+            result.setMessage("购买成功");
+        }
 
         return result;
     }

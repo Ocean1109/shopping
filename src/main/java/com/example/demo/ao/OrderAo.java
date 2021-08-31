@@ -8,4 +8,5 @@ import java.util.List;
 public class OrderAo {
     private String token;
     private List<Integer> productIds;
+    private List<Integer> num;
 }
