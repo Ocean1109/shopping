@@ -17,6 +17,8 @@ import org.apache.ibatis.ognl.Token;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.concurrent.locks.ReentrantLock;
+
 @Service
 public class UserInfoImp implements UserInfoService {
 
@@ -25,6 +27,8 @@ public class UserInfoImp implements UserInfoService {
 
     @Autowired
     private TokenService tokenService;
+
+    private final ReentrantLock lock = new ReentrantLock();
 
     /**
      * @param token
@@ -39,12 +43,18 @@ public class UserInfoImp implements UserInfoService {
         shoppingUserQueryWrapper.eq("id", Integer.parseInt(tokenService.getUseridFromToken(token)));
         ShoppingUser queryUser = shoppingUserMapper.selectOne(shoppingUserQueryWrapper);
 
-        userInfoVo.setUserName(queryUser.getUserName());
-        userInfoVo.setAddress(queryUser.getAddress());
-        userInfoVo.setAge(queryUser.getAge());
-        userInfoVo.setGender(queryUser.getGender());
-        userInfoVo.setMail(queryUser.getMail());
-        userInfoVo.setTel(queryUser.getTel());
+        lock.lock();
+        try{
+            userInfoVo.setUserName(queryUser.getUserName());
+            userInfoVo.setAddress(queryUser.getAddress());
+            userInfoVo.setAge(queryUser.getAge());
+            userInfoVo.setGender(queryUser.getGender());
+            userInfoVo.setMail(queryUser.getMail());
+            userInfoVo.setTel(queryUser.getTel());
+        }
+        finally {
+            lock.unlock();
+        }
 
         return userInfoVo;
     }
@@ -61,22 +71,28 @@ public class UserInfoImp implements UserInfoService {
         shoppingUserQueryWrapper.eq("id", Integer.parseInt(tokenService.getUseridFromToken(userInfoAo.getToken())));
         ShoppingUser queryUser = shoppingUserMapper.selectOne(shoppingUserQueryWrapper);
 
-        ShoppingUser newUserInfo = new ShoppingUser(
-                queryUser.getId(),
-                (userInfoAo.getTel()!=null)? userInfoAo.getTel(): queryUser.getTel(),
-                queryUser.getPassword(),
-                (userInfoAo.getUserName()!=null)? userInfoAo.getUserName(): queryUser.getUserName(),
-                queryUser.getToken(),
-                (userInfoAo.getAddress()!=null)? userInfoAo.getAddress(): queryUser.getAddress(),
-                (userInfoAo.getAge()!=null)? Integer.parseInt(userInfoAo.getAge()) : queryUser.getAge(),
-                (userInfoAo.getGender()!=null)? Integer.parseInt(userInfoAo.getGender()): queryUser.getGender(),
-                queryUser.getMail(),
-                queryUser.getCode());
+        lock.lock();
+        try{
+            ShoppingUser newUserInfo = new ShoppingUser(
+                    queryUser.getId(),
+                    (userInfoAo.getTel()!=null)? userInfoAo.getTel(): queryUser.getTel(),
+                    queryUser.getPassword(),
+                    (userInfoAo.getUserName()!=null)? userInfoAo.getUserName(): queryUser.getUserName(),
+                    queryUser.getToken(),
+                    (userInfoAo.getAddress()!=null)? userInfoAo.getAddress(): queryUser.getAddress(),
+                    (userInfoAo.getAge()!=null)? Integer.parseInt(userInfoAo.getAge()) : queryUser.getAge(),
+                    (userInfoAo.getGender()!=null)? Integer.parseInt(userInfoAo.getGender()): queryUser.getGender(),
+                    queryUser.getMail(),
+                    queryUser.getCode());
 
-        shoppingUserMapper.update(newUserInfo, shoppingUserQueryWrapper);
+            shoppingUserMapper.update(newUserInfo, shoppingUserQueryWrapper);
 
-        result.setCode(0);
-        result.setMessage("修改信息成功");
+            result.setCode(0);
+            result.setMessage("修改信息成功");
+        }
+        finally {
+            lock.unlock();
+        }
 
         return result;
     }
@@ -93,32 +109,38 @@ public class UserInfoImp implements UserInfoService {
         shoppingUserQueryWrapper.eq("id", Integer.parseInt(tokenService.getUseridFromToken(changeMailAo.getToken())));
         ShoppingUser queryUser = shoppingUserMapper.selectOne(shoppingUserQueryWrapper);
 
-        String password = queryUser.getPassword();
+        lock.lock();
+        try {
+            String password = queryUser.getPassword();
 
-        if(!PatternMatchUtil.isMatchingMail(changeMailAo.getMail())){
-            result.setCode(1);
-            result.setMessage("邮箱格式不正确");
-        }
-        else if(!password.equals(changeMailAo.getPassword())){
-            result.setCode(1);
-            result.setMessage("密码不正确");
-        }
-        else {
-            ShoppingUser newUserInfo = new ShoppingUser(
-                    queryUser.getId(),
-                    queryUser.getTel(),
-                    queryUser.getPassword(),
-                    queryUser.getUserName(),
-                    queryUser.getToken(),
-                    queryUser.getAddress(),
-                    queryUser.getAge(),
-                    queryUser.getGender(),
-                    changeMailAo.getMail(),
-                    queryUser.getCode());
-            shoppingUserMapper.update(newUserInfo, shoppingUserQueryWrapper);
+            if(!PatternMatchUtil.isMatchingMail(changeMailAo.getMail())){
+                result.setCode(1);
+                result.setMessage("邮箱格式不正确");
+            }
+            else if(!password.equals(changeMailAo.getPassword())){
+                result.setCode(1);
+                result.setMessage("密码不正确");
+            }
+            else {
+                ShoppingUser newUserInfo = new ShoppingUser(
+                        queryUser.getId(),
+                        queryUser.getTel(),
+                        queryUser.getPassword(),
+                        queryUser.getUserName(),
+                        queryUser.getToken(),
+                        queryUser.getAddress(),
+                        queryUser.getAge(),
+                        queryUser.getGender(),
+                        changeMailAo.getMail(),
+                        queryUser.getCode());
+                shoppingUserMapper.update(newUserInfo, shoppingUserQueryWrapper);
 
-            result.setCode(0);
-            result.setMessage("邮箱更改成功");
+                result.setCode(0);
+                result.setMessage("邮箱更改成功");
+            }
+        }
+        finally {
+            lock.unlock();
         }
 
         return result;
@@ -136,30 +158,36 @@ public class UserInfoImp implements UserInfoService {
         shoppingUserQueryWrapper.eq("id", id);
         ShoppingUser queryUser = shoppingUserMapper.selectOne(shoppingUserQueryWrapper);
 
-        String code = SendMailUtil.sendCode(queryUser.getMail());
+        lock.lock();
+        try {
+            String code = SendMailUtil.sendCode(queryUser.getMail());
 
-        DelCodeSubThread delCodeSubThread = new DelCodeSubThread(id, shoppingUserMapper);
-        delCodeSubThread.start();
+            DelCodeSubThread delCodeSubThread = new DelCodeSubThread(id, shoppingUserMapper);
+            delCodeSubThread.start();
 
-        if(code == "SendingException"){
-            result.setCode(1);
-            result.setMessage("发送失败");
+            if(code == "SendingException"){
+                result.setCode(1);
+                result.setMessage("发送失败");
+            }
+            else {
+                ShoppingUser newUserInfo = new ShoppingUser(
+                        queryUser.getId(),
+                        queryUser.getTel(),
+                        queryUser.getPassword(),
+                        queryUser.getUserName(),
+                        queryUser.getToken(),
+                        queryUser.getAddress(),
+                        queryUser.getAge(),
+                        queryUser.getGender(),
+                        queryUser.getMail(),
+                        code);
+                shoppingUserMapper.update(newUserInfo, shoppingUserQueryWrapper);
+                result.setCode(0);
+                result.setMessage("发送成功");
+            }
         }
-        else {
-            ShoppingUser newUserInfo = new ShoppingUser(
-                    queryUser.getId(),
-                    queryUser.getTel(),
-                    queryUser.getPassword(),
-                    queryUser.getUserName(),
-                    queryUser.getToken(),
-                    queryUser.getAddress(),
-                    queryUser.getAge(),
-                    queryUser.getGender(),
-                    queryUser.getMail(),
-                    code);
-            shoppingUserMapper.update(newUserInfo, shoppingUserQueryWrapper);
-            result.setCode(0);
-            result.setMessage("发送成功");
+        finally {
+            lock.unlock();
         }
 
         return result;
@@ -177,33 +205,39 @@ public class UserInfoImp implements UserInfoService {
         shoppingUserQueryWrapper.eq("id", Integer.parseInt(tokenService.getUseridFromToken(changePasswordAo.getToken())));
         ShoppingUser queryUser = shoppingUserMapper.selectOne(shoppingUserQueryWrapper);
 
-        String code = queryUser.getCode();
+        lock.lock();
+        try {
+            String code = queryUser.getCode();
 
-        if(code == "SendingException"){
-            result.setCode(1);
-            result.setMessage("发送失败");
-        }
-        else if(!changePasswordAo.getCode().equals(code)){
-            result.setCode(1);
-            result.setMessage("验证码错误");
-        }
-        else {
-            ShoppingUser newUserInfo = new ShoppingUser(
-                    queryUser.getId(),
-                    queryUser.getTel(),
-                    changePasswordAo.getPassword(),
-                    queryUser.getUserName(),
-                    queryUser.getToken(),
-                    queryUser.getAddress(),
-                    queryUser.getAge(),
-                    queryUser.getGender(),
-                    queryUser.getMail(),
-                    "");
-            shoppingUserMapper.update(newUserInfo, shoppingUserQueryWrapper);
+            if(code == "SendingException"){
+                result.setCode(1);
+                result.setMessage("发送失败");
+            }
+            else if(!changePasswordAo.getCode().equals(code)){
+                result.setCode(1);
+                result.setMessage("验证码错误");
+            }
+            else {
+                ShoppingUser newUserInfo = new ShoppingUser(
+                        queryUser.getId(),
+                        queryUser.getTel(),
+                        changePasswordAo.getPassword(),
+                        queryUser.getUserName(),
+                        queryUser.getToken(),
+                        queryUser.getAddress(),
+                        queryUser.getAge(),
+                        queryUser.getGender(),
+                        queryUser.getMail(),
+                        "");
+                shoppingUserMapper.update(newUserInfo, shoppingUserQueryWrapper);
 
-            code = null;
-            result.setCode(0);
-            result.setMessage("修改成功");
+                code = null;
+                result.setCode(0);
+                result.setMessage("修改成功");
+            }
+        }
+        finally {
+            lock.unlock();
         }
 
         return result;
