@@ -499,8 +499,10 @@ public class OrderServiceImp implements OrderService {
             QueryWrapper<Product> productQueryWrapper;
             Product queryProduct;
             List<Product> productList;
+            List<Integer> productNum;
             for(int i = 0; i < extendShoppingOrders.size(); i++){
                 productList = new ArrayList<Product>();
+                productNum = new ArrayList<Integer>();
 
                 orderProductQueryWrapper = Wrappers.query();
                 orderProductQueryWrapper.eq("order_id", extendShoppingOrders.get(i).getId());
@@ -516,10 +518,12 @@ public class OrderServiceImp implements OrderService {
                     }
                     else {
                         productList.add(queryProduct);
+                        productNum.add(queryOrderProduct.get(j).getNum());
                     }
                 }
 
                 extendShoppingOrders.get(i).setProductList(productList);
+                extendShoppingOrders.get(i).setProductNum(productNum);
 
             }
 

@@ -21,6 +21,7 @@ public class ExtendShoppingOrder {
     private Timestamp completionTime;
     private Timestamp createTime;
     private List<Product> productList;
+    private List<Integer> productNum;
 
     public ExtendShoppingOrder(int id, int buyingUserId, int tradeStatus, int payStatus, Double orderAmount, Double payAmount, Timestamp payTime, Timestamp completionTime, Timestamp createTime) {
         this.id = id;
