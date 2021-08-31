@@ -100,7 +100,7 @@ public class OrderServiceImp implements OrderService {
                 result.setMessage(queryProducts.getProductDesc() + "库存不足，无法购买！");
             }
 
-            newOrder = new OrderProduct(queryOrder.getId(), orderAo.getProductIds().get(i), false, queryProducts.getPublishUserId(), false);
+            newOrder = new OrderProduct(queryOrder.getId(), orderAo.getProductIds().get(i), false, queryProducts.getPublishUserId(), false, orderAo.getNum().get(i));
             orderProductMapper.insert(newOrder);
 
             Product newProduct = new Product(
@@ -195,7 +195,8 @@ public class OrderServiceImp implements OrderService {
                 queryOrderProduct.getProductId(),
                 true,
                 queryOrderProduct.getShopkeeperId(),
-                queryOrderProduct.isFinished()
+                queryOrderProduct.isFinished(),
+                queryOrderProduct.getNum()
         );
 
         orderProductMapper.update(orderProduct, orderProductQueryWrapper);
@@ -294,7 +295,8 @@ public class OrderServiceImp implements OrderService {
                         orderProductList.get(i).getProductId(),
                         orderProductList.get(i).isSentProduct(),
                         orderProductList.get(i).getShopkeeperId(),
-                        true
+                        true,
+                        orderProductList.get(i).getNum()
                 );
 
                 orderProductQueryWrapper1 = Wrappers.query();
@@ -366,7 +368,8 @@ public class OrderServiceImp implements OrderService {
                         orderProductList.get(i).getProductId(),
                         orderProductList.get(i).isSentProduct(),
                         orderProductList.get(i).getShopkeeperId(),
-                        true
+                        true,
+                        orderProductList.get(i).getNum()
                 );
 
                 orderProductQueryWrapper1 = Wrappers.query();

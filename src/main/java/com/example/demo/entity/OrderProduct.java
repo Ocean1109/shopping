@@ -17,12 +17,14 @@ public class OrderProduct {
     private boolean sentProduct;
     private int shopkeeperId;
     private boolean isFinished;
+    private int num;
 
-    public OrderProduct(int orderId, int productId, boolean sentProduct, int shopkeeperId, boolean isFinished) {
+    public OrderProduct(int orderId, int productId, boolean sentProduct, int shopkeeperId, boolean isFinished, int num) {
         this.orderId = orderId;
         this.productId = productId;
         this.sentProduct = sentProduct;
         this.shopkeeperId = shopkeeperId;
         this.isFinished = isFinished;
+        this.num = num;
     }
 }
