@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.locks.ReentrantLock;
 
 @Service
 public class ShoppingCartImp implements ShoppingCartService {
@@ -32,6 +33,8 @@ public class ShoppingCartImp implements ShoppingCartService {
 
     @Autowired
     private TokenService tokenService;
+
+    private final ReentrantLock lock = new ReentrantLock();
 
     public ProductCartVo ProductCartControlling(ShoppingCartAo product){
         ProductCartVo result;
@@ -53,34 +56,39 @@ public class ShoppingCartImp implements ShoppingCartService {
         shoppingCartQueryWrapper.eq("user_id", Integer.parseInt(tokenService.getUseridFromToken(shoppingCartAo.getToken()))).eq("product_id", shoppingCartAo.getProductId());
         ShoppingCart queryCart = shoppingCartMapper.selectOne(shoppingCartQueryWrapper);
 
-        if(queryCart!=null){//购物车某个商品数量增加
-            ShoppingCart newCart = new ShoppingCart(queryCart.getId(), queryCart.getUserId(), queryCart.getProductId(), queryCart.getProductNumber() + shoppingCartAo.getNum(), 0);
-            shoppingCartMapper.updateById(newCart);
+        lock.lock();
+        try{
+            if(queryCart!=null){//购物车某个商品数量增加
+                ShoppingCart newCart = new ShoppingCart(queryCart.getId(), queryCart.getUserId(), queryCart.getProductId(), queryCart.getProductNumber() + shoppingCartAo.getNum(), 0);
+                shoppingCartMapper.updateById(newCart);
 
-            result.setSuccess(true);
-            result.setMessage("已添加至购物车");
-            result = addShoppingCartList(shoppingCartAo, result);
-        }
-        else{//添加新商品
-            QueryWrapper<Product> productQueryWrapper = Wrappers.query();
-            productQueryWrapper.eq("id", shoppingCartAo.getProductId());
-            Product queryProduct = productMapper.selectOne(productQueryWrapper);
-
-            if(queryProduct==null){
-                result.setSuccess(false);
-                result.setMessage("没有该商品");
+                result.setSuccess(true);
+                result.setMessage("已添加至购物车");
                 result = addShoppingCartList(shoppingCartAo, result);
-                return result;
             }
+            else {//添加新商品
+                QueryWrapper<Product> productQueryWrapper = Wrappers.query();
+                productQueryWrapper.eq("id", shoppingCartAo.getProductId());
+                Product queryProduct = productMapper.selectOne(productQueryWrapper);
 
-            ShoppingCart newCart = new ShoppingCart(Integer.parseInt(tokenService.getUseridFromToken(shoppingCartAo.getToken())), queryProduct.getId(), shoppingCartAo.getNum());
-            shoppingCartMapper.insert(newCart);
+                if (queryProduct == null) {
+                    result.setSuccess(false);
+                    result.setMessage("没有该商品");
+                    result = addShoppingCartList(shoppingCartAo, result);
+                    return result;
+                }
 
-            result.setSuccess(true);
-            result.setMessage("已增加商品");
-            result = addShoppingCartList(shoppingCartAo, result);
+                ShoppingCart newCart = new ShoppingCart(Integer.parseInt(tokenService.getUseridFromToken(shoppingCartAo.getToken())), queryProduct.getId(), shoppingCartAo.getNum());
+                shoppingCartMapper.insert(newCart);
+
+                result.setSuccess(true);
+                result.setMessage("已增加商品");
+                result = addShoppingCartList(shoppingCartAo, result);
+            }
         }
-
+        finally {
+            lock.unlock();
+        }
 
         return result;
     }
@@ -92,25 +100,33 @@ public class ShoppingCartImp implements ShoppingCartService {
         shoppingCartQueryWrapper.eq("user_id", Integer.parseInt(tokenService.getUseridFromToken(shoppingCartAo.getToken()))).eq("product_id", shoppingCartAo.getProductId());
         ShoppingCart queryCart = shoppingCartMapper.selectOne(shoppingCartQueryWrapper);
 
-        int num = shoppingCartAo.getNum();
+        lock.lock();
+        try {
+            int num = shoppingCartAo.getNum();
 
-        if(queryCart==null){//没有该商品
-            result.setSuccess(false);
-            result.setMessage("没有该商品");
+            if(queryCart==null){//没有该商品
+                result.setSuccess(false);
+                result.setMessage("没有该商品");
+            }
+            else if(queryCart.getProductNumber() <= num){//商品数量小于要删除的数量
+                result.setSuccess(true);
+                result.setMessage("删除成功");
+                shoppingCartMapper.delete(shoppingCartQueryWrapper);
+            }
+            else{
+                ShoppingCart newCart = new ShoppingCart(queryCart.getId(), queryCart.getUserId(), queryCart.getProductId(), queryCart.getProductNumber() - shoppingCartAo.getNum(), 0);
+                shoppingCartMapper.updateById(newCart);
+                result.setSuccess(true);
+                result.setMessage("删除成功");
+            }
+
+            result = addShoppingCartList(shoppingCartAo, result);
         }
-        else if(queryCart.getProductNumber() <= num){//商品数量小于要删除的数量
-            result.setSuccess(true);
-            result.setMessage("删除成功");
-            shoppingCartMapper.delete(shoppingCartQueryWrapper);
-        }
-        else{
-            ShoppingCart newCart = new ShoppingCart(queryCart.getId(), queryCart.getUserId(), queryCart.getProductId(), queryCart.getProductNumber() - shoppingCartAo.getNum(), 0);
-            shoppingCartMapper.updateById(newCart);
-            result.setSuccess(true);
-            result.setMessage("删除成功");
+        finally {
+            lock.unlock();
         }
 
-        result = addShoppingCartList(shoppingCartAo, result);
+
         return result;
     }
 
