@@ -1,7 +1,6 @@
 package com.example.demo.util;
 
 import com.aliyun.oss.OSS;
-import com.aliyun.oss.OSSBuilder;
 import com.aliyun.oss.OSSClient;
 import com.aliyun.oss.OSSClientBuilder;
 import com.aliyun.oss.model.ObjectMetadata;
@@ -19,11 +18,10 @@ import java.util.*;
 
 /**
  * 阿里云OSS服务器工具类
+ * @author huhaiyang
  */
 @Component
 public class OssUtil {
-
-    //---------变量----------
     protected static final Logger log = LoggerFactory.getLogger(OssUtil.class);
 
     @Value("${aliyun.oss.endpoint}")
@@ -35,29 +33,32 @@ public class OssUtil {
     @Value("${aliyun.oss.bucketName}")
     private String bucketName;
 
-    //文件存储目录
-    private String filedir = "my_file/";
+    /**
+     * 商品图片(包括概览图片和详细图片)
+     */
+    private final static String[] PRODUCT_IMAGES = {"productImages/","productDetailImages/"};
+
 
     /**
-     * 1、单个文件上传
+     * 单个文件上传
      * @param file
      * @return 返回完整URL地址
      */
-    public String uploadFile(MultipartFile file) {
-        String fileUrl = uploadImg2Oss(file);
-        String str = getFileUrl(fileUrl);
+    public String uploadFile(MultipartFile file, int whichPath) {
+        String fileUrl = uploadImg(file, whichPath);
+        String str = getFileUrl(fileUrl, whichPath);
         return str.trim();
     }
 
     /**
-     * 1、单个文件上传(指定文件名（带后缀）)
+     * 单个文件上传(指定文件名（带后缀）)
      * @param file
      * @return 返回完整URL地址
      */
-    public String uploadFile(MultipartFile file,String fileName) {
+    public String uploadFile(MultipartFile file,String fileName, int whichPath) {
         try {
             InputStream inputStream = file.getInputStream();
-            this.uploadFile2OSS(inputStream, fileName);
+            this.uploadFile(inputStream, fileName, whichPath);
             return fileName;
         }
         catch (Exception e) {
@@ -66,17 +67,17 @@ public class OssUtil {
     }
 
     /**
-     * 2、多文件上传
+     * 多文件上传
      * @param fileList
      * @return 返回完整URL，逗号分隔
      */
-    public String uploadFile(List<MultipartFile> fileList) {
+    public String uploadFile(List<MultipartFile> fileList, int whichPath) {
         String fileUrl = "";
         String str = "";
         String photoUrl = "";
         for(int i = 0;i< fileList.size();i++){
-            fileUrl = uploadImg2Oss(fileList.get(i));
-            str = getFileUrl(fileUrl);
+            fileUrl = uploadImg(fileList.get(i), whichPath);
+            str = getFileUrl(fileUrl, whichPath);
             if(i == 0){
                 photoUrl = str;
             }else {
@@ -87,14 +88,14 @@ public class OssUtil {
     }
 
     /**
-     * 3、通过文件名获取文完整件路径
+     * 通过文件名获取文完整件路径
      * @param fileUrl
      * @return 完整URL路径
      */
-    public String getFileUrl(String fileUrl) {
+    public String getFileUrl(String fileUrl, int whichPath) {
         if (fileUrl !=null && fileUrl.length()>0) {
             String[] split = fileUrl.split("/");
-            String url = this.getUrl(this.filedir + split[split.length - 1]);
+            String url = this.getUrl(PRODUCT_IMAGES[whichPath] + split[split.length - 1]);
             return url;
         }
         return null;
@@ -126,7 +127,7 @@ public class OssUtil {
     /**获得url链接*/
     private String getUrl(String key) {
         // 设置URL过期时间为20年 3600l* 1000*24*365*20
-        Date expiration = new Date(new Date().getTime() + 3600l * 1000 * 24 * 365 * 20);
+        Date expiration = new Date(new Date().getTime() + 3600L * 1000 * 24 * 365 * 20);
         // 生成URL
         OSSClient ossClient = new OSSClient(endpoint, accessKeyId, accessKeySecret);
         URL url = ossClient.generatePresignedUrl(bucketName, key, expiration);
@@ -141,20 +142,21 @@ public class OssUtil {
      * @return
      */
     /**上传文件*/
-    private String uploadImg2Oss(MultipartFile file) {
+    private String uploadImg(MultipartFile file, int whichPath) {
         //1、限制最大文件为20M
         if (file.getSize() > 1024 * 1024 *20) {
             return "图片太大";
         }
 
         String fileName = file.getOriginalFilename();
-        String suffix = fileName.substring(fileName.lastIndexOf(".")).toLowerCase(); //文件后缀
+        //文件后缀
+        String suffix = fileName.substring(fileName.lastIndexOf(".")).toLowerCase();
         String uuid = UUID.randomUUID().toString();
         String name = uuid + suffix;
 
         try {
             InputStream inputStream = file.getInputStream();
-            this.uploadFile2OSS(inputStream, name);
+            this.uploadFile(inputStream, name, whichPath);
             return name;
         }
         catch (Exception e) {
@@ -168,7 +170,7 @@ public class OssUtil {
      * @return
      */
     /**上传文件（指定文件名）*/
-    private String uploadFile2OSS(InputStream instream, String fileName) {
+    private String uploadFile(InputStream instream, String fileName, int whichPath) {
         String ret = "";
         try {
             //创建上传Object的Metadata
@@ -176,11 +178,11 @@ public class OssUtil {
             objectMetadata.setContentLength(instream.available());
             objectMetadata.setCacheControl("no-cache");
             objectMetadata.setHeader("Pragma", "no-cache");
-            objectMetadata.setContentType(getcontentType(fileName.substring(fileName.lastIndexOf("."))));
+            objectMetadata.setContentType(getContentType(fileName.substring(fileName.lastIndexOf("."))));
             objectMetadata.setContentDisposition("inline;filename=" + fileName);
             //上传文件
             OSSClient ossClient = new OSSClient(endpoint, accessKeyId, accessKeySecret);
-            PutObjectResult putResult = ossClient.putObject(bucketName, filedir + fileName, instream, objectMetadata);
+            PutObjectResult putResult = ossClient.putObject(bucketName, PRODUCT_IMAGES[whichPath] + fileName, instream, objectMetadata);
             ret = putResult.getETag();
         } catch (IOException e) {
             log.error(e.getMessage(), e);
@@ -220,7 +222,7 @@ public class OssUtil {
      * @param FilenameExtension
      * @return
      */
-    private static String getcontentType(String FilenameExtension) {
+    private static String getContentType(String FilenameExtension) {
         if (FilenameExtension.equalsIgnoreCase(".bmp")) {
             return "image/bmp";
         }

@@ -217,7 +217,7 @@ public class ProductServiceImp implements ProductService {
                 productRuleMapper.insert(newProductRule);
                 product.setProductRuleId(newProductRule.getId());
             }
-            String url = ossUtil.uploadFile(productImage);
+            String url = ossUtil.uploadFile(productImage,0);
             product.setProductImage(url);
             result=productMapper.insert(product);
         }
@@ -227,7 +227,7 @@ public class ProductServiceImp implements ProductService {
 
         if(result==1){
             for(MultipartFile moreImage:moreImages){
-                String moreUrl=ossUtil.uploadFile(moreImage);
+                String moreUrl=ossUtil.uploadFile(moreImage,1);
                 Image image=new Image(moreUrl);
                 imageMapper.insert(image);
                 ProductImage productImage1=new ProductImage(image.getId(),product.getId());
