@@ -73,6 +73,9 @@ public class LoginController {
                 queryUser.setToken(token);
                 shoppingUserMapper.updateById(queryUser);
                 Cookie cookie = new Cookie("token",token);
+                //cookie保存7天
+                cookie.setMaxAge(7*24*60*60);
+                cookie.setPath("/");
                 response.addCookie(cookie);
                 result=new LoginSuccessVo(0,token,queryUser.getUserName());
                 return result;
