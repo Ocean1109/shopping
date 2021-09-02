@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.locks.ReentrantLock;
 
 @Service
 public class ProductServiceImp implements ProductService {
@@ -45,6 +46,8 @@ public class ProductServiceImp implements ProductService {
     @Autowired
     OssUtil ossUtil; //注入OssUtil
 
+    private final ReentrantLock lock = new ReentrantLock();
+
     /**
      * @param productType
      * @return
@@ -53,32 +56,40 @@ public class ProductServiceImp implements ProductService {
     public List<ProductVo> showProduct(String productType,String brand,String address){
         List<ProductVo> allProduct=new ArrayList<>();
         QueryWrapper<Product> queryWrapper=new QueryWrapper<>();
-        if(productType.equals("全部")){
-            queryWrapper.select("id","product_desc","product_image","product_price");
-        }else{
-            if(brand.equals("全部")&&address.equals("全部")){
-                QueryWrapper<ProductType> productTypeQueryWrapper=new QueryWrapper<>();
-                productTypeQueryWrapper.eq("type_name",productType);
-                ProductType searchProductType=productTypeMapper.selectOne(productTypeQueryWrapper);
-                queryWrapper.select("id","product_desc","product_image","product_price").eq("product_type_id",searchProductType.getId());
-            }else if(brand.equals("全部")&&!address.equals("全部")){//address需要进行选择
-                queryWrapper.select("id","product_desc","product_image","product_price").eq("product_address",address);
-            }else if(!brand.equals("全部")&&address.equals("全部")){//brand需要进行选择
-                QueryWrapper<Brand> brandQueryWrapper=new QueryWrapper<>();
-                brandQueryWrapper.eq("brand_name",brand);
-                Brand searchBrand=brandMapper.selectOne(brandQueryWrapper);
-                queryWrapper.select("id","product_desc","product_image","product_price").eq("brand_id",searchBrand.getId());
-            }else{//address和brand需要进行选择
-                QueryWrapper<Brand> brandQueryWrapper=new QueryWrapper<>();
-                brandQueryWrapper.eq("brand_name",brand);
-                Brand searchBrand=brandMapper.selectOne(brandQueryWrapper);
-                queryWrapper.select("id","product_desc","product_image","product_price").eq("brand_id",searchBrand.getId()).eq("product_address",address);
+
+        lock.lock();
+        try {
+            if(productType.equals("全部")){
+                queryWrapper.select("id","product_desc","product_image","product_price");
+            }else{
+                if(brand.equals("全部")&&address.equals("全部")){
+                    QueryWrapper<ProductType> productTypeQueryWrapper=new QueryWrapper<>();
+                    productTypeQueryWrapper.eq("type_name",productType);
+                    ProductType searchProductType=productTypeMapper.selectOne(productTypeQueryWrapper);
+                    queryWrapper.select("id","product_desc","product_image","product_price").eq("product_type_id",searchProductType.getId());
+                }else if(brand.equals("全部")&&!address.equals("全部")){//address需要进行选择
+                    queryWrapper.select("id","product_desc","product_image","product_price").eq("product_address",address);
+                }else if(!brand.equals("全部")&&address.equals("全部")){//brand需要进行选择
+                    QueryWrapper<Brand> brandQueryWrapper=new QueryWrapper<>();
+                    brandQueryWrapper.eq("brand_name",brand);
+                    Brand searchBrand=brandMapper.selectOne(brandQueryWrapper);
+                    queryWrapper.select("id","product_desc","product_image","product_price").eq("brand_id",searchBrand.getId());
+                }else{//address和brand需要进行选择
+                    QueryWrapper<Brand> brandQueryWrapper=new QueryWrapper<>();
+                    brandQueryWrapper.eq("brand_name",brand);
+                    Brand searchBrand=brandMapper.selectOne(brandQueryWrapper);
+                    queryWrapper.select("id","product_desc","product_image","product_price").eq("brand_id",searchBrand.getId()).eq("product_address",address);
+                }
+            }
+            List<Product> products=productMapper.selectList(queryWrapper);
+            for(Product product:products){
+                allProduct.add(new ProductVo(product.getId(),product.getProductDesc(),product.getProductImage(),product.getProductPrice()));
             }
         }
-        List<Product> products=productMapper.selectList(queryWrapper);
-        for(Product product:products){
-            allProduct.add(new ProductVo(product.getId(),product.getProductDesc(),product.getProductImage(),product.getProductPrice()));
+        finally {
+            lock.unlock();
         }
+
         return allProduct;
     }
 
@@ -157,54 +168,63 @@ public class ProductServiceImp implements ProductService {
     @Override
     public Boolean releaseProduct(MultipartFile productImage, List<MultipartFile> moreImages,ReleaseAo releaseProduct){
         Product product=new Product();
-        product.setProductDesc(releaseProduct.getProductDesc());
-        product.setProductPrice(releaseProduct.getProductPrice());
-        int userId=Integer.parseInt(tokenService.getUseridFromToken(releaseProduct.getUser()));
-        product.setPublishUserId(userId);
-        product.setProductAddress(releaseProduct.getProductAddress());
-        //获取当前时间
-        String current = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format( new Date());
-        Timestamp time = Timestamp.valueOf(current);
-        product.setCreateTime(time);
-        product.setUpdateTime(time);
-        product.setNumbers(releaseProduct.getNumbers());
-        product.setProductRule(releaseProduct.getProductRule());
-        //查看是否存在brand，存在则填入相应的id，不存在则新增一个brand,并且填入id
-        QueryWrapper<Brand> brandQueryWrapper=new QueryWrapper<>();
-        brandQueryWrapper.eq("brand_name",releaseProduct.getBrand());
-        Brand productBrand=brandMapper.selectOne(brandQueryWrapper);
-        if(productBrand!=null){//存在
-            product.setBrandId(productBrand.getId());
-        }else{
-            Brand newBrand=new Brand(releaseProduct.getBrand());
-            brandMapper.insert(newBrand);
-            product.setBrandId(newBrand.getId());
+        int result;
+
+        lock.lock();
+        try {
+            product.setProductDesc(releaseProduct.getProductDesc());
+            product.setProductPrice(releaseProduct.getProductPrice());
+            int userId=Integer.parseInt(tokenService.getUseridFromToken(releaseProduct.getUser()));
+            product.setPublishUserId(userId);
+            product.setProductAddress(releaseProduct.getProductAddress());
+            //获取当前时间
+            String current = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format( new Date());
+            Timestamp time = Timestamp.valueOf(current);
+            product.setCreateTime(time);
+            product.setUpdateTime(time);
+            product.setNumbers(releaseProduct.getNumbers());
+            product.setProductRule(releaseProduct.getProductRule());
+            //查看是否存在brand，存在则填入相应的id，不存在则新增一个brand,并且填入id
+            QueryWrapper<Brand> brandQueryWrapper=new QueryWrapper<>();
+            brandQueryWrapper.eq("brand_name",releaseProduct.getBrand());
+            Brand productBrand=brandMapper.selectOne(brandQueryWrapper);
+            if(productBrand!=null){//存在
+                product.setBrandId(productBrand.getId());
+            }else{
+                Brand newBrand=new Brand(releaseProduct.getBrand());
+                brandMapper.insert(newBrand);
+                product.setBrandId(newBrand.getId());
+            }
+            //查看是否存在productType，存在则填入相应的id，不存在则新增一个type,并且填入id
+            QueryWrapper<ProductType> productTypeQueryWrapper=new QueryWrapper<>();
+            productTypeQueryWrapper.eq("type_name",releaseProduct.getProductType());
+            ProductType productType=productTypeMapper.selectOne(productTypeQueryWrapper);
+            if(productType!=null){//存在
+                product.setProductTypeId(productType.getId());
+            }else{
+                ProductType newProductType=new ProductType(releaseProduct.getProductType(),1,time,userId,time,userId);
+                productTypeMapper.insert(newProductType);
+                product.setProductTypeId(newProductType.getId());
+            }
+            //查看是否存在rule，存在则填入相应的id，不存在则新增一个rule,并且填入id
+            QueryWrapper<ProductRule> productRuleQueryWrapper=new QueryWrapper<>();
+            productRuleQueryWrapper.eq("rule",releaseProduct.getRule());
+            ProductRule productRule=productRuleMapper.selectOne(productRuleQueryWrapper);
+            if(productRule!=null){//存在
+                product.setProductRuleId(productRule.getId());
+            }else{
+                ProductRule newProductRule=new ProductRule(userId,releaseProduct.getRule());
+                productRuleMapper.insert(newProductRule);
+                product.setProductRuleId(newProductRule.getId());
+            }
+            String url = ossUtil.uploadFile(productImage);
+            product.setProductImage(url);
+            result=productMapper.insert(product);
         }
-        //查看是否存在productType，存在则填入相应的id，不存在则新增一个type,并且填入id
-        QueryWrapper<ProductType> productTypeQueryWrapper=new QueryWrapper<>();
-        productTypeQueryWrapper.eq("type_name",releaseProduct.getProductType());
-        ProductType productType=productTypeMapper.selectOne(productTypeQueryWrapper);
-        if(productType!=null){//存在
-            product.setProductTypeId(productType.getId());
-        }else{
-            ProductType newProductType=new ProductType(releaseProduct.getProductType(),1,time,userId,time,userId);
-            productTypeMapper.insert(newProductType);
-            product.setProductTypeId(newProductType.getId());
+        finally {
+            lock.unlock();
         }
-        //查看是否存在rule，存在则填入相应的id，不存在则新增一个rule,并且填入id
-        QueryWrapper<ProductRule> productRuleQueryWrapper=new QueryWrapper<>();
-        productRuleQueryWrapper.eq("rule",releaseProduct.getRule());
-        ProductRule productRule=productRuleMapper.selectOne(productRuleQueryWrapper);
-        if(productRule!=null){//存在
-            product.setProductRuleId(productRule.getId());
-        }else{
-            ProductRule newProductRule=new ProductRule(userId,releaseProduct.getRule());
-            productRuleMapper.insert(newProductRule);
-            product.setProductRuleId(newProductRule.getId());
-        }
-        String url = ossUtil.uploadFile(productImage);
-        product.setProductImage(url);
-        int result=productMapper.insert(product);
+
         if(result==1){
             for(MultipartFile moreImage:moreImages){
                 String moreUrl=ossUtil.uploadFile(moreImage);
@@ -226,6 +246,9 @@ public class ProductServiceImp implements ProductService {
     @Override
     public BaseVo deleteProduct(int id) {
         BaseVo baseVo=new BaseVo();
+
+        lock.lock();
+
         try{
             Product deleteProduct=productMapper.selectById(id);
             String url=deleteProduct.getProductImage();
@@ -255,18 +278,19 @@ public class ProductServiceImp implements ProductService {
                 imageMapper.delete(imageQueryWrapper);
                 baseVo.setCode(0);
                 baseVo.setMessage("删除成功");
-                return baseVo;
             }else{
                 baseVo.setCode(1);
                 baseVo.setMessage("删除失败");
-                return baseVo;
             }
         }
         catch (Exception e){
             baseVo.setCode(1);
             baseVo.setMessage(e.getMessage());
-            return baseVo;
         }
+        finally {
+            lock.unlock();
+        }
+        return baseVo;
     }
 
     @Override

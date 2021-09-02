@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * @author huhaiyang
@@ -28,6 +29,8 @@ public class LoginController {
 
     @Autowired
     private TokenService tokenService;
+
+    private final ReentrantLock lock = new ReentrantLock();
 
     /**持久化登录**/
     @GetMapping("/isLogin")
@@ -64,29 +67,36 @@ public class LoginController {
         QueryWrapper<ShoppingUser> shoppingUserQueryWrapper= Wrappers.query();
         shoppingUserQueryWrapper.eq("tel",user.getTel());
         ShoppingUser queryUser=shoppingUserMapper.selectOne(shoppingUserQueryWrapper);
-        //用户不存在
-        if(queryUser==null){
-            result=new LoginSuccessVo(1,"该手机号未注册","");
-            return result;
-        }else{
-            //登录成功
-            if(queryUser.getPassword().equals(user.getPassword())){
-                //添加token
-                String token=tokenService.createToken(String.valueOf(queryUser.getId()));
-                queryUser.setToken(token);
-                shoppingUserMapper.updateById(queryUser);
-                Cookie cookie = new Cookie("token",token);
-                //cookie保存7天
-                cookie.setMaxAge(7*24*60*60);
-                cookie.setPath("/");
-                response.addCookie(cookie);
-                result=new LoginSuccessVo(0,token,queryUser.getUserName());
+        lock.lock();
+        try {
+            //用户不存在
+            if(queryUser==null){
+                result=new LoginSuccessVo(1,"该手机号未注册","");
                 return result;
-            }else{//密码不正确
-                result=new LoginSuccessVo(2,"密码输入错误","");
-                return result;
+            }else{
+                //登录成功
+                if(queryUser.getPassword().equals(user.getPassword())){
+                    //添加token
+                    String token=tokenService.createToken(String.valueOf(queryUser.getId()));
+                    queryUser.setToken(token);
+                    shoppingUserMapper.updateById(queryUser);
+                    Cookie cookie = new Cookie("token",token);
+                    //cookie保存7天
+                    cookie.setMaxAge(7*24*60*60);
+                    cookie.setPath("/");
+                    response.addCookie(cookie);
+                    result=new LoginSuccessVo(0,token,queryUser.getUserName());
+                    return result;
+                }else{//密码不正确
+                    result=new LoginSuccessVo(2,"密码输入错误","");
+                    return result;
+                }
             }
         }
+        finally {
+            lock.unlock();
+        }
+
     }
 
 
@@ -102,26 +112,35 @@ public class LoginController {
         QueryWrapper<ShoppingUser> shoppingUserQueryWrapper= Wrappers.query();
         shoppingUserQueryWrapper.eq("tel",user.getTel());
         ShoppingUser queryUser=shoppingUserMapper.selectOne(shoppingUserQueryWrapper);
-        if(queryUser!=null){//手机号被注册
-            result=new BaseVo(1,"该手机号已被注册");
-            return result;
-        }else{//成功注册
-            int gender=0;
-            if(user.getGender().equals('男')){
-                gender=1;
+
+        lock.lock();
+
+        try {
+            if(queryUser!=null){//手机号被注册
+                result=new BaseVo(1,"该手机号已被注册");
+                return result;
+            }else{//成功注册
+                int gender=0;
+                if(user.getGender().equals('男')){
+                    gender=1;
+                }
+                ShoppingUser newUser =new ShoppingUser(user.getTel(),user.getPassword(),user.getUserName(),user.getAge(),gender);
+                shoppingUserMapper.insert(newUser);
+                //添加token
+                ShoppingUser queryUserAgain=shoppingUserMapper.selectOne(shoppingUserQueryWrapper);
+                String token=tokenService.createToken(String.valueOf(queryUserAgain.getId()));
+                queryUserAgain.setToken(token);
+                Cookie cookie = new Cookie("token",token);
+                response.addCookie(cookie);
+                shoppingUserMapper.updateById(queryUserAgain);
+                result=new BaseVo(0,token);
+                return result;
             }
-            ShoppingUser newUser =new ShoppingUser(user.getTel(),user.getPassword(),user.getUserName(),user.getAge(),gender);
-            shoppingUserMapper.insert(newUser);
-            //添加token
-            ShoppingUser queryUserAgain=shoppingUserMapper.selectOne(shoppingUserQueryWrapper);
-            String token=tokenService.createToken(String.valueOf(queryUserAgain.getId()));
-            queryUserAgain.setToken(token);
-            Cookie cookie = new Cookie("token",token);
-            response.addCookie(cookie);
-            shoppingUserMapper.updateById(queryUserAgain);
-            result=new BaseVo(0,token);
-            return result;
         }
+        finally {
+            lock.unlock();
+        }
+
     }
 
 
