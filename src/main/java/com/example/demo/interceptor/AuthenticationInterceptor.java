@@ -56,8 +56,6 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
                 } catch (Exception e) {
                     throw new RuntimeException("token已经失效,请重新登录");
                 }
-//                /** 设置 identityId 用户身份ID */
-//                request.setAttribute("identityId", claims.getSubject());
                 return true;
             }
         }

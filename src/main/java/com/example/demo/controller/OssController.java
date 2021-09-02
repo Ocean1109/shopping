@@ -14,7 +14,7 @@ import java.util.Map;
 public class OssController {
 
     @Autowired
-    OssUtil ossUtil; //注入OssUtil
+    OssUtil ossUtil;
 
     /**
      * @param file
@@ -24,7 +24,7 @@ public class OssController {
     public Object fileUpload(@RequestParam("file") MultipartFile file)
     {
         try {
-            String url = ossUtil.uploadFile(file); //调用OSS工具类
+            String url = ossUtil.uploadFile(file);
             Map<String, Object> returnbody = new HashMap<>();
             Map<String, Object> returnMap = new HashMap<>();
             returnMap.put("url", url);
