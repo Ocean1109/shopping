@@ -37,6 +37,7 @@ public class UserInfoImp implements UserInfoService {
     /**
      * 展示用户信息
      */
+    @Override
     public UserInfoVo ShowUserInfo(String token) {
         UserInfoVo userInfoVo = new UserInfoVo();
 
@@ -67,6 +68,7 @@ public class UserInfoImp implements UserInfoService {
     /**
      * 更新用户信息
      */
+    @Override
     public BaseVo UpdateUserInfo(UserInfoAo userInfoAo) {
         BaseVo result = new BaseVo();
 
@@ -101,6 +103,7 @@ public class UserInfoImp implements UserInfoService {
     /**
      * 更新邮箱
      */
+    @Override
     public BaseVo ChangeMail(ChangeMailAo changeMailAo) {
         BaseVo result = new BaseVo();
 
@@ -144,6 +147,7 @@ public class UserInfoImp implements UserInfoService {
     /**
      * 发送验证码
      */
+    @Override
     public BaseVo SendCode(int id) {
         BaseVo result = new BaseVo();
 
@@ -191,6 +195,7 @@ public class UserInfoImp implements UserInfoService {
     /**
      * 更改密码
      */
+    @Override
     public BaseVo ChangePassword(ChangePasswordAo changePasswordAo) {
         BaseVo result = new BaseVo();
 

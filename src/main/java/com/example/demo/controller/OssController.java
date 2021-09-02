@@ -24,7 +24,7 @@ public class OssController {
     public Object fileUpload(@RequestParam("file") MultipartFile file)
     {
         try {
-            String url = ossUtil.uploadFile(file);
+            String url = ossUtil.uploadFile(file,0);
             Map<String, Object> returnbody = new HashMap<>();
             Map<String, Object> returnMap = new HashMap<>();
             returnMap.put("url", url);
