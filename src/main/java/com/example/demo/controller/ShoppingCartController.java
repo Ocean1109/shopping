@@ -12,6 +12,7 @@ import com.example.demo.mapper.ShoppingCartMapper;
 import com.example.demo.service.ShoppingCartService;
 import com.example.demo.vo.ProductCartVo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import java.util.List;
 
 @Controller
+@EnableAsync
 public class ShoppingCartController {
 
     @Autowired

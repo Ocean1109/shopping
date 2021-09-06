@@ -10,6 +10,8 @@ import com.example.demo.service.TokenService;
 import com.example.demo.vo.BaseVo;
 import com.example.demo.vo.LoginSuccessVo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,6 +24,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * @author huhaiyang
  */
 @Controller
+@EnableAsync
 public class LoginController {
 
     @Autowired
@@ -84,13 +87,16 @@ public class LoginController {
      */
     @PostMapping("/login")
     @ResponseBody
+    @Async
     public LoginSuccessVo login(@RequestBody LoginAo user, HttpServletResponse response) {
         LoginSuccessVo result;
+
+        lock.lock();
+        try {
+
         QueryWrapper<ShoppingUser> shoppingUserQueryWrapper = Wrappers.query();
         shoppingUserQueryWrapper.eq("tel", user.getTel());
         ShoppingUser queryUser = shoppingUserMapper.selectOne(shoppingUserQueryWrapper);
-        lock.lock();
-        try {
             //用户不存在
             if (queryUser == null) {
                 result = new LoginSuccessVo(1, "该手机号未注册", "");
@@ -130,15 +136,17 @@ public class LoginController {
      */
     @PostMapping("/register")
     @ResponseBody
+    @Async
     public BaseVo register(@RequestBody RegisterAo user, HttpServletResponse response) {
         BaseVo result;
+
+        lock.lock();
+        try {
+
         QueryWrapper<ShoppingUser> shoppingUserQueryWrapper = Wrappers.query();
         shoppingUserQueryWrapper.eq("tel", user.getTel());
         ShoppingUser queryUser = shoppingUserMapper.selectOne(shoppingUserQueryWrapper);
 
-        lock.lock();
-
-        try {
             if (queryUser != null) {//手机号被注册
                 result = new BaseVo(1, "该手机号已被注册");
                 return result;

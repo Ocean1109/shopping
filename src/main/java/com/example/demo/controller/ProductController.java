@@ -19,6 +19,7 @@ import com.example.demo.vo.BaseVo;
 import com.example.demo.vo.ProductDetailVo;
 import com.example.demo.vo.ProductVo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -30,6 +31,7 @@ import java.util.Date;
 import java.util.List;
 
 @Controller
+@EnableAsync
 public class ProductController {
 
     @Autowired

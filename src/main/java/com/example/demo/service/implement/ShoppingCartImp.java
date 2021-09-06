@@ -13,6 +13,7 @@ import com.example.demo.service.ShoppingCartService;
 import com.example.demo.service.TokenService;
 import com.example.demo.vo.ProductCartVo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -36,6 +37,8 @@ public class ShoppingCartImp implements ShoppingCartService {
 
     private final ReentrantLock lock = new ReentrantLock();
 
+    @Override
+    @Async
     public ProductCartVo ProductCartControlling(ShoppingCartAo product){
         ProductCartVo result;
 
@@ -50,14 +53,18 @@ public class ShoppingCartImp implements ShoppingCartService {
     }
 
     /**添加商品*/
+    @Override
+    @Async
     public ProductCartVo addProduct(ShoppingCartAo shoppingCartAo){
+
         ProductCartVo result = new ProductCartVo();
+
+        lock.lock();
+        try{
         QueryWrapper<ShoppingCart> shoppingCartQueryWrapper = Wrappers.query();
         shoppingCartQueryWrapper.eq("user_id", Integer.parseInt(tokenService.getUseridFromToken(shoppingCartAo.getToken()))).eq("product_id", shoppingCartAo.getProductId());
         ShoppingCart queryCart = shoppingCartMapper.selectOne(shoppingCartQueryWrapper);
 
-        lock.lock();
-        try{
             if(queryCart!=null){//购物车某个商品数量增加
                 ShoppingCart newCart = new ShoppingCart(queryCart.getId(), queryCart.getUserId(), queryCart.getProductId(), queryCart.getProductNumber() + shoppingCartAo.getNum(), 0);
                 shoppingCartMapper.updateById(newCart);
@@ -94,6 +101,8 @@ public class ShoppingCartImp implements ShoppingCartService {
     }
 
     /**删除商品*/
+    @Override
+    @Async
     public ProductCartVo delProduct(ShoppingCartAo shoppingCartAo){
         ProductCartVo result = new ProductCartVo();
         QueryWrapper<ShoppingCart> shoppingCartQueryWrapper = Wrappers.query();
@@ -131,6 +140,7 @@ public class ShoppingCartImp implements ShoppingCartService {
     }
 
     /**列出商品列表*/
+    @Override
     public ProductCartVo addShoppingCartList(ShoppingCartAo product, ProductCartVo productCartVo){
         QueryWrapper<ShoppingCart> shoppingCartQueryWrapper = Wrappers.query();
         shoppingCartQueryWrapper.eq("user_id", Integer.parseInt(tokenService.getUseridFromToken(product.getToken())));
@@ -163,6 +173,7 @@ public class ShoppingCartImp implements ShoppingCartService {
     }
 
     /**列出商品列表*/
+    @Override
     public List<ShoppingCartListInfo> addShoppingCartList(String token){
         QueryWrapper<ShoppingCart> shoppingCartQueryWrapper = Wrappers.query();
         int userId=Integer.parseInt(tokenService.getUseridFromToken(token));
