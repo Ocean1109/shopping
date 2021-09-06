@@ -22,7 +22,7 @@ public class UserLogController {
     @Autowired
     private UserLogMapper userLogMapper;
 
-    private final String localPath = "/Project/Java Project/Eshop/shopping/log.csv";
+    private final String localPath = "log.csv";
 
     @GetMapping("/ImportCsv")
     public String uploadPage() {
