@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
  * @author huhaiyang
  * @date 2021/9/6
  */
-@FeignClient(name = "spring-cloud-producer")
+@FeignClient(name = "spring-cloud-producer",fallback = DataRemoteHystrix.class)
 public interface DataRemote {
     @RequestMapping("/hello")
     String a();

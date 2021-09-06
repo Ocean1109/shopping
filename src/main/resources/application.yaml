@@ -21,8 +21,14 @@ aliyun:
     accessKeySecret: MWA3UiU9i16kMj9bJWCOyaGOg8E5ik
     bucketName: ocean1109
 
+# 开启hystrix
+feign:
+  circuitbreaker:
+    enabled: true
 
 eureka:
   client:
     serviceUrl:
       defaultZone: http://152.136.110.205:8000/eureka/,http://152.136.110.205:8001/eureka/,http://152.136.110.205:8002/eureka/
+
+
