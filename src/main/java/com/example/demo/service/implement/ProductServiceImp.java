@@ -13,6 +13,7 @@ import com.example.demo.vo.ProductDetailVo;
 import com.example.demo.vo.ProductVo;
 import com.fasterxml.jackson.databind.ser.Serializers;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
@@ -53,12 +54,15 @@ public class ProductServiceImp implements ProductService {
      * @return
      */
     @Override
+    @Async
     public List<ProductVo> showProduct(String productType,String brand,String address){
         List<ProductVo> allProduct=new ArrayList<>();
-        QueryWrapper<Product> queryWrapper=new QueryWrapper<>();
 
         lock.lock();
         try {
+
+        QueryWrapper<Product> queryWrapper=new QueryWrapper<>();
+
             if(productType.equals("全部")){
                 queryWrapper.select("id","product_desc","product_image","product_price");
             }else{
@@ -166,6 +170,7 @@ public class ProductServiceImp implements ProductService {
      * @return
      */
     @Override
+    @Async
     public Boolean releaseProduct(MultipartFile productImage, List<MultipartFile> moreImages,ReleaseAo releaseProduct){
         Product product=new Product();
         int result;
@@ -244,6 +249,7 @@ public class ProductServiceImp implements ProductService {
      * @return
      */
     @Override
+    @Async
     public BaseVo deleteProduct(int id) {
         BaseVo baseVo=new BaseVo();
 

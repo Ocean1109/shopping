@@ -8,6 +8,7 @@ import com.example.demo.vo.BaseVo;
 import com.example.demo.vo.OrderList4ShopkeeperVo;
 import com.example.demo.vo.OrderListVo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  * 处理订单逻辑
  */
 @Controller
+@EnableAsync
 public class OrderController {
 
     @Autowired

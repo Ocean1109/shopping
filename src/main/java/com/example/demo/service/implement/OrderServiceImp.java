@@ -15,6 +15,7 @@ import com.example.demo.vo.BaseVo;
 import com.example.demo.vo.OrderList4ShopkeeperVo;
 import com.example.demo.vo.OrderListVo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.sql.Timestamp;
@@ -49,17 +50,19 @@ public class OrderServiceImp implements OrderService {
      * @return
      */
     /**当一个人买商品时，产生订单*/
+    @Override
+    @Async
     public BaseVo generateOrder(OrderAo orderAo){
         BaseVo result = new BaseVo();
+
+        lock.lock();
+        try {
 
         double orderAmount = 0d;
 
         int userId = Integer.parseInt(tokenService.getUseridFromToken(orderAo.getToken()));
 
         QueryWrapper<Product> productQueryWrapper;
-
-        lock.lock();
-        try {
             for(int i = 0; i < orderAo.getProductIds().size(); i++){
                 productQueryWrapper = Wrappers.query();
                 productQueryWrapper.eq("id", orderAo.getProductIds().get(i));
@@ -146,15 +149,18 @@ public class OrderServiceImp implements OrderService {
      * @return
      */
     /**支付订单*/
+    @Override
+    @Async
     public BaseVo payOrder(PayOrderAo payOrderAo){
         BaseVo result = new BaseVo();
+
+        lock.lock();
+        try {
 
         QueryWrapper<ShoppingOrder> shoppingOrderQueryWrapper = Wrappers.query();
         shoppingOrderQueryWrapper.eq("id", payOrderAo.getId());
         ShoppingOrder queryOrder = shoppingOrderMapper.selectOne(shoppingOrderQueryWrapper);
 
-        lock.lock();
-        try {
             if(queryOrder == null){
                 result.setCode(1);
                 result.setMessage("没有此订单");
@@ -197,15 +203,18 @@ public class OrderServiceImp implements OrderService {
      * @return
      */
     /**发货*/
+    @Override
+    @Async
     public BaseVo sendingProduct(int id){
         BaseVo result = new BaseVo();
+
+        lock.lock();
+        try {
 
         QueryWrapper<OrderProduct> orderProductQueryWrapper = Wrappers.query();
         orderProductQueryWrapper.eq("id", id);
         OrderProduct queryOrderProduct = orderProductMapper.selectOne(orderProductQueryWrapper);
 
-        lock.lock();
-        try {
             OrderProduct orderProduct = new OrderProduct(
                     queryOrderProduct.getId(),
                     queryOrderProduct.getOrderId(),
@@ -270,15 +279,18 @@ public class OrderServiceImp implements OrderService {
      * @return
      */
     /**取消订单*/
+    @Override
+    @Async
     public BaseVo cancelOrder(int id){
         BaseVo result = new BaseVo();
+
+        lock.lock();
+        try {
 
         QueryWrapper<ShoppingOrder> shoppingOrderQueryWrapper = Wrappers.query();
         shoppingOrderQueryWrapper.eq("id", id);
         ShoppingOrder queryOrder = shoppingOrderMapper.selectOne(shoppingOrderQueryWrapper);
 
-        lock.lock();
-        try {
             if(queryOrder == null){
                 result.setCode(1);
                 result.setMessage("没有此订单");
@@ -344,15 +356,18 @@ public class OrderServiceImp implements OrderService {
      * @return
      */
     /**确认收货*/
+    @Override
+    @Async
     public BaseVo completeOrder(int id){
         BaseVo result = new BaseVo();
+
+        lock.lock();
+        try {
 
         QueryWrapper<ShoppingOrder> shoppingOrderQueryWrapper = Wrappers.query();
         shoppingOrderQueryWrapper.eq("id", id);
         ShoppingOrder queryOrder = shoppingOrderMapper.selectOne(shoppingOrderQueryWrapper);
 
-        lock.lock();
-        try {
             if(queryOrder == null){
                 result.setCode(1);
                 result.setMessage("没有此订单");
@@ -423,15 +438,18 @@ public class OrderServiceImp implements OrderService {
      * @return
      */
     /**商家查找所有购买自己商品的订单*/
+    @Override
+    @Async
     public OrderList4ShopkeeperVo getOrder4Shopkeeper(int id){
         OrderList4ShopkeeperVo result = new OrderList4ShopkeeperVo();
+
+        lock.lock();
+        try {
 
         QueryWrapper<OrderProduct> orderProductQueryWrapper = Wrappers.query();
         orderProductQueryWrapper.eq("shopkeeper_id", id);
         List<OrderProduct> queryOrderProduct = orderProductMapper.selectList(orderProductQueryWrapper);
 
-        lock.lock();
-        try {
             if(queryOrderProduct == null){
                 result.setCode(1);
                 result.setMessage("没有此订单");
@@ -499,15 +517,18 @@ public class OrderServiceImp implements OrderService {
      * @return
      */
     /**查找某用户所有订单，仅包括未取消的订单*/
+    @Override
+    @Async
     public OrderListVo getOrder(int userId){
         OrderListVo result = new OrderListVo();
+
+        lock.lock();
+        try {
 
         QueryWrapper<ShoppingOrder> shoppingOrderQueryWrapper = Wrappers.query();
         shoppingOrderQueryWrapper.eq("buying_user_id", userId);
         List<ShoppingOrder> queryOrder = shoppingOrderMapper.selectList(shoppingOrderQueryWrapper);
 
-        lock.lock();
-        try {
             if(queryOrder == null){
                 result.setCode(1);
                 result.setMessage("没有此用户");
