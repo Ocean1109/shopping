@@ -1,6 +1,9 @@
 package com.example.demo.feign;
 
+import com.example.demo.entity.AnalysisAction;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 /**
  * @author huhaiyang
@@ -8,6 +11,11 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class DataRemoteHystrix implements DataRemote{
+    @Override
+    public List<AnalysisAction> analysisAction() {
+        return null;
+    }
+
     @Override
     public String a() {
         return "熔断";
