@@ -11,7 +11,7 @@ import org.springframework.context.ConfigurableApplicationContext;
 @SpringBootApplication
 @MapperScan("com.example.demo.mapper")
 @EnableDiscoveryClient
-@EnableFeignClients
+@EnableFeignClients(basePackages = "com.example.demo.feign")
 public class DemoApplication {
 
     public static void main(String[] args) {

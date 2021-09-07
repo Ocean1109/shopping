@@ -11,29 +11,30 @@ import java.util.List;
  */
 @Component
 public class DataRemoteHystrix implements DataRemote{
+    private TemporaryData temporaryData = TemporaryData.getTemporaryData();
     @Override
     public List<AnalysisAction> analysisAction() {
-        return null;
+        return temporaryData.getDemoAnalysisAction();
     }
 
     @Override
     public List<CompareNum> compareNum() {
-        return null;
+        return temporaryData.getDemoCompareNum();
     }
 
     @Override
     public List<CompareAge> compareAge() {
-        return null;
+        return temporaryData.getDemoCompareAge();
     }
 
     @Override
     public List<TopProductCategory> topProductCategory() {
-        return null;
+        return temporaryData.getDemoTopProductCategory();
     }
 
     @Override
     public List<CompareProvince> compareProvince() {
-        return null;
+        return temporaryData.getDemoCompareProvince();
     }
 
     @Override
