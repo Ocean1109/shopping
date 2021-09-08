@@ -11,7 +11,7 @@ spring:
   #Redis配置
   redis:
     database: 0
-    host: localhost
+    host: 140.143.242.142
     port: 6379
     timeout: 1000
 
