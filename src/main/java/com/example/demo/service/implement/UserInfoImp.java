@@ -7,6 +7,8 @@ import com.example.demo.ao.ChangePasswordAo;
 import com.example.demo.ao.UserInfoAo;
 import com.example.demo.entity.ShoppingUser;
 import com.example.demo.mapper.ShoppingUserMapper;
+import com.example.demo.redis.RedisUtils;
+import com.example.demo.service.TokenService;
 import com.example.demo.service.UserInfoService;
 import com.example.demo.util.PatternMatchUtil;
 import com.example.demo.util.SendMailUtil;
@@ -14,6 +16,7 @@ import com.example.demo.vo.BaseVo;
 import com.example.demo.vo.UserInfoVo;
 import org.apache.ibatis.ognl.Token;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.concurrent.locks.ReentrantLock;
@@ -24,11 +27,6 @@ public class UserInfoImp implements UserInfoService {
     @Autowired
     private ShoppingUserMapper shoppingUserMapper;
 
-    /**
-     * @param userInfoAo
-     * @return
-     */
-    /**更新用户信息*/
     @Autowired
     private TokenService tokenService;
 
@@ -37,20 +35,31 @@ public class UserInfoImp implements UserInfoService {
 
     private final ReentrantLock lock = new ReentrantLock();
 
+    /**
+     * @param token
+     * @return
+     */
+    /**
+     * 展示用户信息
+     */
+    @Override
+    @Async
+    public UserInfoVo ShowUserInfo(String token) {
+        UserInfoVo userInfoVo = new UserInfoVo();
 
-        ShoppingUser newUserInfo = new ShoppingUser(
-                queryUser.getId(),
-                (userInfoAo.getTel()!=null)? userInfoAo.getTel(): queryUser.getTel(),
-                queryUser.getPassword(),
-                (userInfoAo.getUserName()!=null)? userInfoAo.getUserName(): queryUser.getUserName(),
-                queryUser.getToken(),
-                (userInfoAo.getAddress()!=null)? userInfoAo.getAddress(): queryUser.getAddress(),
-                (userInfoAo.getAge()!=null)? Integer.parseInt(userInfoAo.getAge()) : queryUser.getAge(),
-                (userInfoAo.getGender()!=null)? Integer.parseInt(userInfoAo.getGender()): queryUser.getGender(),
-                queryUser.getMail(),
-                queryUser.getCode());
+        lock.lock();
+        try {
 
-        shoppingUserMapper.update(newUserInfo, shoppingUserQueryWrapper);
+            QueryWrapper<ShoppingUser> shoppingUserQueryWrapper = Wrappers.query();
+            int id = Integer.parseInt(tokenService.getUseridFromToken(token));
+
+            String tel = redisUtils.get("shopping_user_tel_" + id);
+
+            if(tel == null){
+                shoppingUserQueryWrapper.eq("id", Integer.parseInt(tokenService.getUseridFromToken(token)));
+                ShoppingUser queryUser = shoppingUserMapper.selectOne(shoppingUserQueryWrapper);
+
+                userInfoVo.setUserName(queryUser.getUserName());
                 userInfoVo.setAddress(queryUser.getAddress());
                 userInfoVo.setAge(queryUser.getAge());
                 userInfoVo.setGender(queryUser.getGender());
@@ -58,49 +67,54 @@ public class UserInfoImp implements UserInfoService {
                 userInfoVo.setTel(queryUser.getTel());
 
                 redisUtils.set("shopping_user_tel_" + queryUser.getId(), queryUser.getTel());
+                redisUtils.set("shopping_user_user_name_" + queryUser.getId(), queryUser.getUserName());
+                redisUtils.set("shopping_user_address_" + queryUser.getId(), queryUser.getAddress());
+                redisUtils.set("shopping_user_age_" + queryUser.getId(), String.valueOf(queryUser.getAge()));
+                redisUtils.set("shopping_user_gender_" + queryUser.getId(), String.valueOf(queryUser.getGender()));
+                redisUtils.set("shopping_user_mail_" + queryUser.getId(), queryUser.getMail());
+            }
+            else {
                 userInfoVo.setUserName(redisUtils.get("shopping_user_user_name_" + id));
                 userInfoVo.setAddress(redisUtils.get("shopping_user_address_" + id));
                 userInfoVo.setAge(Integer.parseInt(redisUtils.get("shopping_user_age_" + id)));
+                userInfoVo.setGender(Integer.parseInt(redisUtils.get("shopping_user_gender_" + id)));
+                userInfoVo.setMail(redisUtils.get("shopping_user_mail_" + id));
+                userInfoVo.setTel(redisUtils.get("shopping_user_tel_" + id));
+            }
 
-        result.setCode(0);
-        result.setMessage("修改信息成功");
+        }
+        finally {
+            lock.unlock();
+        }
 
-        return result;
+        return userInfoVo;
     }
 
     /**
-     * @param changeMailAo
+     * @param userInfoAo
      * @return
      */
-    /**更新邮箱*/
-    public BaseVo ChangeMail(ChangeMailAo changeMailAo){
+    /**
+     * 更新用户信息
+     */
+    @Override
+    @Async
+    public BaseVo UpdateUserInfo(UserInfoAo userInfoAo) {
         BaseVo result = new BaseVo();
 
-        QueryWrapper<ShoppingUser> shoppingUserQueryWrapper = Wrappers.query();
-        shoppingUserQueryWrapper.eq("id", changeMailAo.getId());
-        ShoppingUser queryUser = shoppingUserMapper.selectOne(shoppingUserQueryWrapper);
+        lock.lock();
+        try {
+            QueryWrapper<ShoppingUser> shoppingUserQueryWrapper = Wrappers.query();
+            shoppingUserQueryWrapper.eq("id", Integer.parseInt(tokenService.getUseridFromToken(userInfoAo.getToken())));
+            ShoppingUser queryUser = shoppingUserMapper.selectOne(shoppingUserQueryWrapper);
 
-        String password = queryUser.getPassword();
-
-        if(!PatternMatchUtil.isMatchingMail(changeMailAo.getMail())){
-            result.setCode(1);
-            result.setMessage("邮箱格式不正确");
-        }
-        else if(!password.equals(changeMailAo.getPassword())){
-            result.setCode(1);
-            result.setMessage("密码不正确");
-        }
-        else {
             ShoppingUser newUserInfo = new ShoppingUser(
                     queryUser.getId(),
-                    queryUser.getTel(),
+                    (userInfoAo.getTel() != null) ? userInfoAo.getTel() : queryUser.getTel(),
                     queryUser.getPassword(),
-                    queryUser.getUserName(),
+                    (userInfoAo.getUserName() != null) ? userInfoAo.getUserName() : queryUser.getUserName(),
                     queryUser.getToken(),
-                    queryUser.getAddress(),
-                    queryUser.getAge(),
-                    queryUser.getGender(),
-                    changeMailAo.getMail(),
+                    (userInfoAo.getAddress() != null) ? userInfoAo.getAddress() : queryUser.getAddress(),
                     (userInfoAo.getAge() != null) ? Integer.parseInt(userInfoAo.getAge()) : queryUser.getAge(),
                     (userInfoAo.getGender() != null) ? Integer.parseInt(userInfoAo.getGender()) : queryUser.getGender(),
                     queryUser.getMail(),
@@ -108,6 +122,7 @@ public class UserInfoImp implements UserInfoService {
 
             shoppingUserMapper.update(newUserInfo, shoppingUserQueryWrapper);
 
+            redisUtils.delete("shopping_user_tel_" + queryUser.getId());
             redisUtils.delete("shopping_user_user_name_" + queryUser.getId());
             redisUtils.delete("shopping_user_address_" + queryUser.getId());
             redisUtils.delete("shopping_user_age_" + queryUser.getId());
