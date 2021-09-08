@@ -11,8 +11,12 @@ import com.example.demo.service.UserInfoService;
 import com.example.demo.util.PatternMatchUtil;
 import com.example.demo.util.SendMailUtil;
 import com.example.demo.vo.BaseVo;
+import com.example.demo.vo.UserInfoVo;
+import org.apache.ibatis.ognl.Token;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.concurrent.locks.ReentrantLock;
 
 @Service
 public class UserInfoImp implements UserInfoService {
@@ -25,13 +29,13 @@ public class UserInfoImp implements UserInfoService {
      * @return
      */
     /**更新用户信息*/
-    public BaseVo UpdateUserInfo(UserInfoAo userInfoAo){
-        BaseVo result = new BaseVo();
+    @Autowired
+    private TokenService tokenService;
 
-        QueryWrapper<ShoppingUser> shoppingUserQueryWrapper = Wrappers.query();
-        shoppingUserQueryWrapper.eq("id", userInfoAo.getId());
-        ShoppingUser queryUser = shoppingUserMapper.selectOne(shoppingUserQueryWrapper);
+    @Autowired
+    RedisUtils redisUtils;
 
+    private final ReentrantLock lock = new ReentrantLock();
 
 
         ShoppingUser newUserInfo = new ShoppingUser(
@@ -47,6 +51,16 @@ public class UserInfoImp implements UserInfoService {
                 queryUser.getCode());
 
         shoppingUserMapper.update(newUserInfo, shoppingUserQueryWrapper);
+                userInfoVo.setAddress(queryUser.getAddress());
+                userInfoVo.setAge(queryUser.getAge());
+                userInfoVo.setGender(queryUser.getGender());
+                userInfoVo.setMail(queryUser.getMail());
+                userInfoVo.setTel(queryUser.getTel());
+
+                redisUtils.set("shopping_user_tel_" + queryUser.getId(), queryUser.getTel());
+                userInfoVo.setUserName(redisUtils.get("shopping_user_user_name_" + id));
+                userInfoVo.setAddress(redisUtils.get("shopping_user_address_" + id));
+                userInfoVo.setAge(Integer.parseInt(redisUtils.get("shopping_user_age_" + id)));
 
         result.setCode(0);
         result.setMessage("修改信息成功");
@@ -87,11 +101,82 @@ public class UserInfoImp implements UserInfoService {
                     queryUser.getAge(),
                     queryUser.getGender(),
                     changeMailAo.getMail(),
+                    (userInfoAo.getAge() != null) ? Integer.parseInt(userInfoAo.getAge()) : queryUser.getAge(),
+                    (userInfoAo.getGender() != null) ? Integer.parseInt(userInfoAo.getGender()) : queryUser.getGender(),
+                    queryUser.getMail(),
                     queryUser.getCode());
+
             shoppingUserMapper.update(newUserInfo, shoppingUserQueryWrapper);
 
+            redisUtils.delete("shopping_user_user_name_" + queryUser.getId());
+            redisUtils.delete("shopping_user_address_" + queryUser.getId());
+            redisUtils.delete("shopping_user_age_" + queryUser.getId());
+            redisUtils.delete("shopping_user_gender_" + queryUser.getId());
+            redisUtils.delete("shopping_user_mail_" + queryUser.getId());
+
             result.setCode(0);
-            result.setMessage("邮箱更改成功");
+            result.setMessage("修改信息成功");
+        }
+        finally {
+            lock.unlock();
+        }
+
+        return result;
+    }
+
+    /**
+     * @param changeMailAo
+     * @return
+     */
+    /**
+     * 更新邮箱
+     */
+    @Override
+    @Async
+    public BaseVo ChangeMail(ChangeMailAo changeMailAo) {
+        BaseVo result = new BaseVo();
+
+        lock.lock();
+        try {
+            QueryWrapper<ShoppingUser> shoppingUserQueryWrapper = Wrappers.query();
+            shoppingUserQueryWrapper.eq("id", Integer.parseInt(tokenService.getUseridFromToken(changeMailAo.getToken())));
+            ShoppingUser queryUser = shoppingUserMapper.selectOne(shoppingUserQueryWrapper);
+
+            String password = queryUser.getPassword();
+
+            if (!PatternMatchUtil.isMatchingMail(changeMailAo.getMail())) {
+                result.setCode(1);
+                result.setMessage("邮箱格式不正确");
+            } else if (!password.equals(changeMailAo.getPassword())) {
+                result.setCode(1);
+                result.setMessage("密码不正确");
+            } else {
+                ShoppingUser newUserInfo = new ShoppingUser(
+                        queryUser.getId(),
+                        queryUser.getTel(),
+                        queryUser.getPassword(),
+                        queryUser.getUserName(),
+                        queryUser.getToken(),
+                        queryUser.getAddress(),
+                        queryUser.getAge(),
+                        queryUser.getGender(),
+                        changeMailAo.getMail(),
+                        queryUser.getCode());
+                shoppingUserMapper.update(newUserInfo, shoppingUserQueryWrapper);
+
+                redisUtils.delete("shopping_user_tel_" + queryUser.getId());
+                redisUtils.delete("shopping_user_user_name_" + queryUser.getId());
+                redisUtils.delete("shopping_user_address_" + queryUser.getId());
+                redisUtils.delete("shopping_user_age_" + queryUser.getId());
+                redisUtils.delete("shopping_user_gender_" + queryUser.getId());
+                redisUtils.delete("shopping_user_mail_" + queryUser.getId());
+
+                result.setCode(0);
+                result.setMessage("邮箱更改成功");
+            }
+        }
+        finally {
+            lock.unlock();
         }
 
         return result;
@@ -101,38 +186,47 @@ public class UserInfoImp implements UserInfoService {
      * @param id
      * @return
      */
-    /**发送验证码*/
-    public BaseVo SendCode(int id){
+    /**
+     * 发送验证码
+     */
+    @Override
+    @Async
+    public BaseVo SendCode(int id) {
         BaseVo result = new BaseVo();
+
+        lock.lock();
+        try {
 
         QueryWrapper<ShoppingUser> shoppingUserQueryWrapper = Wrappers.query();
         shoppingUserQueryWrapper.eq("id", id);
         ShoppingUser queryUser = shoppingUserMapper.selectOne(shoppingUserQueryWrapper);
 
-        String code = SendMailUtil.sendCode(queryUser.getMail());
+            String code = SendMailUtil.sendCode(queryUser.getMail());
 
-        DelCodeSubThread delCodeSubThread = new DelCodeSubThread(id, shoppingUserMapper);
-        delCodeSubThread.start();
+            DelCodeSubThread delCodeSubThread = new DelCodeSubThread(id, shoppingUserMapper);
+            delCodeSubThread.start();
 
-        if(code == "SendingException"){
-            result.setCode(1);
-            result.setMessage("发送失败");
-        }
-        else {
-            ShoppingUser newUserInfo = new ShoppingUser(
-                    queryUser.getId(),
-                    queryUser.getTel(),
-                    queryUser.getPassword(),
-                    queryUser.getUserName(),
-                    queryUser.getToken(),
-                    queryUser.getAddress(),
-                    queryUser.getAge(),
-                    queryUser.getGender(),
-                    queryUser.getMail(),
-                    code);
-            shoppingUserMapper.update(newUserInfo, shoppingUserQueryWrapper);
-            result.setCode(0);
-            result.setMessage("发送成功");
+            if (code == "SendingException") {
+                result.setCode(1);
+                result.setMessage("发送失败");
+            } else {
+                ShoppingUser newUserInfo = new ShoppingUser(
+                        queryUser.getId(),
+                        queryUser.getTel(),
+                        queryUser.getPassword(),
+                        queryUser.getUserName(),
+                        queryUser.getToken(),
+                        queryUser.getAddress(),
+                        queryUser.getAge(),
+                        queryUser.getGender(),
+                        queryUser.getMail(),
+                        code);
+                shoppingUserMapper.update(newUserInfo, shoppingUserQueryWrapper);
+                result.setCode(0);
+                result.setMessage("发送成功");
+            }
+        } finally {
+            lock.unlock();
         }
 
         return result;
@@ -142,41 +236,49 @@ public class UserInfoImp implements UserInfoService {
      * @param changePasswordAo
      * @return
      */
-    /**更改密码*/
-    public BaseVo ChangePassword(ChangePasswordAo changePasswordAo){
+    /**
+     * 更改密码
+     */
+    @Override
+    @Async
+    public BaseVo ChangePassword(ChangePasswordAo changePasswordAo) {
         BaseVo result = new BaseVo();
 
-        QueryWrapper<ShoppingUser> shoppingUserQueryWrapper = Wrappers.query();
-        shoppingUserQueryWrapper.eq("id", changePasswordAo.getId());
-        ShoppingUser queryUser = shoppingUserMapper.selectOne(shoppingUserQueryWrapper);
+        lock.lock();
+        try {
+            QueryWrapper<ShoppingUser> shoppingUserQueryWrapper = Wrappers.query();
+            shoppingUserQueryWrapper.eq("id", Integer.parseInt(tokenService.getUseridFromToken(changePasswordAo.getToken())));
+            ShoppingUser queryUser = shoppingUserMapper.selectOne(shoppingUserQueryWrapper);
 
-        String code = queryUser.getCode();
+            String code = queryUser.getCode();
 
-        if(code == "SendingException"){
-            result.setCode(1);
-            result.setMessage("发送失败");
+            if (code == "SendingException") {
+                result.setCode(1);
+                result.setMessage("发送失败");
+            } else if (!changePasswordAo.getCode().equals(code)) {
+                result.setCode(1);
+                result.setMessage("验证码错误");
+            } else {
+                ShoppingUser newUserInfo = new ShoppingUser(
+                        queryUser.getId(),
+                        queryUser.getTel(),
+                        changePasswordAo.getPassword(),
+                        queryUser.getUserName(),
+                        queryUser.getToken(),
+                        queryUser.getAddress(),
+                        queryUser.getAge(),
+                        queryUser.getGender(),
+                        queryUser.getMail(),
+                        "");
+                shoppingUserMapper.update(newUserInfo, shoppingUserQueryWrapper);
+
+                code = null;
+                result.setCode(0);
+                result.setMessage("修改成功");
+            }
         }
-        else if(!changePasswordAo.getCode().equals(code)){
-            result.setCode(1);
-            result.setMessage("验证码错误");
-        }
-        else {
-            ShoppingUser newUserInfo = new ShoppingUser(
-                    queryUser.getId(),
-                    queryUser.getTel(),
-                    changePasswordAo.getPassword(),
-                    queryUser.getUserName(),
-                    queryUser.getToken(),
-                    queryUser.getAddress(),
-                    queryUser.getAge(),
-                    queryUser.getGender(),
-                    queryUser.getMail(),
-                    "");
-            shoppingUserMapper.update(newUserInfo, shoppingUserQueryWrapper);
-
-            code = null;
-            result.setCode(0);
-            result.setMessage("修改成功");
+        finally {
+            lock.unlock();
         }
 
         return result;
@@ -195,7 +297,7 @@ class DelCodeSubThread extends Thread {
      * @param id
      * @param shoppingUserMapper
      */
-    DelCodeSubThread(int id, ShoppingUserMapper shoppingUserMapper){
+    DelCodeSubThread(int id, ShoppingUserMapper shoppingUserMapper) {
         this.id = id;
         this.shoppingUserMapper = shoppingUserMapper;
     }
@@ -203,7 +305,9 @@ class DelCodeSubThread extends Thread {
     /**
      *
      */
-    /**当用户5分钟未输入验证码，使该验证码失效*/
+    /**
+     * 当用户5分钟未输入验证码，使该验证码失效
+     */
     @Override
     public void run() {
         try {

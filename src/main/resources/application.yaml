@@ -4,6 +4,16 @@ spring:
     password: Ocean1109
     url: jdbc:postgresql://152.136.110.205:8081/shopping
     driver-class-name: org.postgresql.Driver
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+  #Redis配置
+  redis:
+    database: 0
+    host: localhost
+    port: 6379
+    timeout: 1000
 
 server:
   port: 8181
