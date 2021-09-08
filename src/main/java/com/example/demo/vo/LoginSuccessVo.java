@@ -4,13 +4,11 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.sql.Timestamp;
-
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
-public class ChatDetailVo {
-    private String userId;
+@NoArgsConstructor
+public class LoginSuccessVo {
+    private int code;
+    private String message;
     private String userName;
-    private String content;
 }

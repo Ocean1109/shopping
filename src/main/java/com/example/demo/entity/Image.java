@@ -11,4 +11,8 @@ public class Image {
     @TableId(value = "id", type = IdType.AUTO)
     private int id;
     private String imageUrl;
+
+    public Image(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
 }

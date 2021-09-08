@@ -7,6 +7,10 @@ import com.example.demo.entity.*;
 import com.example.demo.mapper.ProductMapper;
 import com.example.demo.mapper.ShoppingCartMapper;
 import com.example.demo.redis.RedisUtils;
+import com.example.demo.mapper.OrderProductMapper;
+import com.example.demo.mapper.ProductMapper;
+import com.example.demo.mapper.ShoppingCartMapper;
+import com.example.demo.mapper.ShoppingOrderMapper;
 import com.example.demo.service.ShoppingCartService;
 import com.example.demo.service.TokenService;
 import com.example.demo.vo.ProductCartVo;
@@ -160,6 +164,7 @@ public class ShoppingCartImp implements ShoppingCartService {
     public ProductCartVo addShoppingCartList(ShoppingCartAo shoppingCartAo, ProductCartVo productCartVo){
         QueryWrapper<ShoppingCart> shoppingCartQueryWrapper = Wrappers.query();
         shoppingCartQueryWrapper.eq("user_id", Integer.parseInt(tokenService.getUseridFromToken(shoppingCartAo.getToken())));
+
         List<ShoppingCart> queryCart = shoppingCartMapper.selectList(shoppingCartQueryWrapper);
 
         QueryWrapper<Product> productQueryWrapper = Wrappers.query();

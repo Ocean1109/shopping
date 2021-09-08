@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class ChangePasswordAo {
-    private int id;
+    private String token;
     private String code;
     private String password;
 }

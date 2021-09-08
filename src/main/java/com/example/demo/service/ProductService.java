@@ -3,7 +3,9 @@ package com.example.demo.service;
 import com.example.demo.ao.ReleaseAo;
 import com.example.demo.entity.Product;
 import com.example.demo.vo.BaseVo;
+import com.example.demo.vo.ProductDetailVo;
 import com.example.demo.vo.ProductVo;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -19,15 +21,28 @@ public interface ProductService {
      * @param id
      * @return 商品实体类*/
     /**展示单个商品的信息*/
-    Product showSingleProduct(int id);
+    ProductDetailVo showSingleProduct(int id);
     /**
      * @param productImage,releaseProduct
      * @return 是否成功发布*/
     /**发布一个商品*/
-    Boolean releaseProduct(MultipartFile productImage, ReleaseAo releaseProduct);
+    @Async
+    Boolean releaseProduct(MultipartFile productImage, List<MultipartFile> moreImages,ReleaseAo releaseProduct);
     /**
      * @param id
      * @return 是否成功删除*/
     /**删除一个商品*/
+    @Async
     BaseVo deleteProduct(int id);
+    /**
+     * @param productName
+     */
+    /**搜索商品*/
+    List<ProductVo> search(String productName);
+    /**
+     * @param token
+     */
+    /**列出用户发布的商品*/
+    List<ProductVo> listBusinessman(String token);
+
 }

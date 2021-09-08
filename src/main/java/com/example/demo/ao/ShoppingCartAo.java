@@ -8,6 +8,6 @@ public class ShoppingCartAo {
     /**0:添加
      * 1：删除*/
     private int productId;
-    private int userId;
+    private String token;
     private int num;
 }

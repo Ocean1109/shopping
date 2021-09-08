@@ -6,6 +6,7 @@ import java.util.List;
 
 @Data
 public class OrderAo {
-    private int userId;
+    private String token;
     private List<Integer> productIds;
+    private List<Integer> num;
 }

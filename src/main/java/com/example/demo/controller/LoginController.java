@@ -87,7 +87,6 @@ public class LoginController {
      */
     @PostMapping("/login")
     @ResponseBody
-    @Async
     public LoginSuccessVo login(@RequestBody LoginAo user, HttpServletResponse response) {
         LoginSuccessVo result;
 
@@ -136,7 +135,6 @@ public class LoginController {
      */
     @PostMapping("/register")
     @ResponseBody
-    @Async
     public BaseVo register(@RequestBody RegisterAo user, HttpServletResponse response) {
         BaseVo result;
 

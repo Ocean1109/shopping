@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.api.R;
 import com.example.demo.annotation.PassToken;
 import com.example.demo.annotation.UserLoginToken;
 import com.example.demo.ao.ReleaseAo;
@@ -15,8 +16,10 @@ import com.example.demo.service.ProductService;
 import com.example.demo.service.TokenService;
 import com.example.demo.util.OssUtil;
 import com.example.demo.vo.BaseVo;
+import com.example.demo.vo.ProductDetailVo;
 import com.example.demo.vo.ProductVo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -62,12 +65,23 @@ public class ProductController {
     /**发布商品*/
     @PostMapping("/release")
     @ResponseBody
-    public Boolean release(@RequestPart("productImage")MultipartFile productImage, @RequestPart("releaseProduct")ReleaseAo releaseProduct){
-        return productService.releaseProduct(productImage,releaseProduct);
+    public Boolean release(@RequestParam("productImage")MultipartFile productImage,
+                           @RequestParam("moreImages")List<MultipartFile> moreImages,
+                           @RequestParam("productDesc")String productDesc,
+                           @RequestParam("productPrice")Double productPrice,
+                           @RequestParam("productType")String productType,
+                           @RequestParam("brand")String brand,
+                           @RequestParam("user")String user,
+                           @RequestParam("productAddress")String productAddress,
+                           @RequestParam("numbers")int numbers,
+                           @RequestParam("rule")String rule,
+                           @RequestParam("productRule")String productRule){
+        ReleaseAo releaseProduct=new ReleaseAo(productDesc,productPrice,productType,brand,user,productAddress,numbers,rule,productRule);
+        return productService.releaseProduct(productImage,moreImages,releaseProduct);
     }
 
     /**
-     *
+     * @param id
      */
     /**删除商品*/
     @PostMapping("/delete")
@@ -76,5 +90,33 @@ public class ProductController {
         return productService.deleteProduct(id);
     }
 
+    /***
+     * @param id
+     */
+    /**展示单个商品详细信息*/
+    @GetMapping("/product/{id}")
+    @ResponseBody
+    public ProductDetailVo showDetailProduct(@PathVariable("id")int id){
+        return productService.showSingleProduct(id);
+    }
+
+    /**
+     * @param productName
+     */
+    /**搜索商品*/
+    @PostMapping("/search")
+    @ResponseBody
+    public List<ProductVo> search(@RequestParam("productName")String productName){
+        return productService.search(productName);
+    }
+
+    /**
+     * @param token
+     */
+    @PostMapping("/listBusinessman")
+    @ResponseBody
+    public List<ProductVo> listBusinessman(@RequestParam("token")String token){
+        return productService.listBusinessman(token);
+    }
 
 }

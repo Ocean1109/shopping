@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class LikeAo {
-    private int userId;
+    private String token;
     private int productId;
     private boolean like;
 }

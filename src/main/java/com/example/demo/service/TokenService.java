@@ -18,7 +18,7 @@ import java.util.Map;
 public class TokenService {
     private String secret = "123456";
     // http请求中header中token的key
-    private String header = "token";
+    private String header = "ownToken";
 
     /**
      * 生成token

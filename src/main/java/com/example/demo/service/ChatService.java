@@ -3,6 +3,7 @@ package com.example.demo.service;
 import com.example.demo.entity.Chat;
 import com.example.demo.entity.ChatDetail;
 import com.example.demo.vo.ChatDetailVo;
+import com.example.demo.vo.ChatVo;
 
 import java.util.List;
 
@@ -11,7 +12,7 @@ public interface ChatService {
      * @param userId
      * @return
      */
-    List<Chat> showAllChat(int userId);
+    List<ChatVo> showAllChat(int userId);
 
     /**
      * @param chatId
@@ -25,4 +26,6 @@ public interface ChatService {
      * @param content
      */
     void insertChat(int chatId,int userId,String content);
+
+    int newChat(int userId,int businessId,int productId);
 }
