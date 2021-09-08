@@ -271,7 +271,7 @@ public class ShoppingCartImp implements ShoppingCartService {
                         queryProduct.getProductPrice(),
                         Integer.parseInt(redisUtils.get("shopping_cart_product_number_" + queryCart.get(i).getId())),
                         0,
-                        Integer.parseInt(redisUtils.get("shopping_cart_purchased_" + queryCart.get(i).getId())),);
+                        Integer.parseInt(redisUtils.get("shopping_cart_purchased_" + queryCart.get(i).getId())));
                 newCartListInfo.add(shoppingCartListInfo);
             }
 
