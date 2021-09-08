@@ -98,7 +98,7 @@ public class OrderController {
      * @param userId
      * @return
      */
-    /**查找某用户所有订单，仅包括未取消和为完成的订单*/
+    /**查找某用户所有订单，仅包括未取消和未完成的订单*/
     @PostMapping("/getOrders")
     @ResponseBody
     public OrderListVo getOrder(@RequestParam("token") String token){
