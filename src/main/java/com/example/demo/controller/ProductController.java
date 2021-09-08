@@ -31,7 +31,6 @@ import java.util.Date;
 import java.util.List;
 
 @Controller
-@EnableAsync
 public class ProductController {
 
     @Autowired

@@ -15,7 +15,6 @@ public interface ProductService {
      * @param productType
      * @return 商品实体类list*/
     /**展示相应的商品的概览信息*/
-    @Async
     List<ProductVo> showProduct(String productType,String brand,String address);
 
     /**
