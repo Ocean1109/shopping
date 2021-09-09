@@ -63,9 +63,9 @@ public class ShoppingCartImp implements ShoppingCartService {
 
         lock.lock();
         try{
-        QueryWrapper<ShoppingCart> shoppingCartQueryWrapper = Wrappers.query();
-        shoppingCartQueryWrapper.eq("user_id", Integer.parseInt(tokenService.getUseridFromToken(shoppingCartAo.getToken()))).eq("product_id", shoppingCartAo.getProductId());
-        ShoppingCart queryCart = shoppingCartMapper.selectOne(shoppingCartQueryWrapper);
+            QueryWrapper<ShoppingCart> shoppingCartQueryWrapper = Wrappers.query();
+            shoppingCartQueryWrapper.eq("user_id", Integer.parseInt(tokenService.getUseridFromToken(shoppingCartAo.getToken()))).eq("product_id", shoppingCartAo.getProductId());
+            ShoppingCart queryCart = shoppingCartMapper.selectOne(shoppingCartQueryWrapper);
 
             if(queryCart!=null){
                 //购物车某个商品数量增加

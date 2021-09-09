@@ -24,14 +24,9 @@ public class UserLogController {
 
     private final String localPath = "log.csv";
 
-    @GetMapping("/ImportCsv")
-    public String uploadPage() {
-        return "ImportCsv";
-    }
-
-    @PostMapping("/ImportCsv")
+    @RequestMapping("/ImportCsv")
     @ResponseBody
-    public BaseVo ImportCsv(@RequestPart("file") MultipartFile file) {
+    public BaseVo ImportCsv(MultipartFile file) {
         BaseVo result = new BaseVo();
 
         String fileName = file.getOriginalFilename();
