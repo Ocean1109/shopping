@@ -26,7 +26,7 @@ public class UserLogController {
 
     @RequestMapping("/ImportCsv")
     @ResponseBody
-    public BaseVo ImportCsv(MultipartFile file) {
+    public BaseVo ImportCsv(@RequestPart("file") MultipartFile file) {
         BaseVo result = new BaseVo();
 
         String fileName = file.getOriginalFilename();
