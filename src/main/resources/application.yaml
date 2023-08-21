@@ -22,10 +22,10 @@ server:
 # 阿里云存储参数配置
 aliyun:
   oss:
-    endpoint: oss-cn-beijing.aliyuncs.com
-    accessKeyId: LTAI5t6Ke7hnD9M1WF6bvhae
-    accessKeySecret: MWA3UiU9i16kMj9bJWCOyaGOg8E5ik
-    bucketName: ocean1109
+    endpoint: 
+    accessKeyId: 
+    accessKeySecret: 
+    bucketName: 
 
 # 开启hystrix
 feign:
